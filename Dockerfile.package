@@ -1,0 +1,37 @@
+FROM golang:latest as build-stage
+
+RUN apt-get update && apt-get install -y --no-install-recommends upx
+
+WORKDIR /src
+ENV GO111MODULE=on CGO_ENABLED=0
+RUN go get -u -ldflags="-s -w" github.com/google/go-containerregistry/cmd/crane
+RUN which crane
+
+RUN curl \
+      --output /bin/yj \
+      --location \
+      --show-error \
+      --silent \
+      "https://github.com/sclevine/yj/releases/download/v5.0.0/yj-linux" \
+    && chmod +x /bin/yj
+
+ENV PACK_VERSION 0.14.1
+RUN curl \
+      --location \
+      --show-error \
+      --silent \
+      "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-linux.tgz" \
+      | tar -C /bin/ -xzv pack
+
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get install -y --no-install-recommends jq
+
+COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build-stage /go/bin/crane /bin/crane
+COPY --from=build-stage /bin/yj /bin/yj
+COPY --from=build-stage /bin/pack /bin/pack
+
+COPY sbin/package.sh /bin/package
+RUN chmod +x /bin/package
+ENTRYPOINT ["/bin/package"]
