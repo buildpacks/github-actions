@@ -1,0 +1,3 @@
+codeowners:
+- path:  "*"
+  owner: "@buildpacks/distribution-maintainers"
