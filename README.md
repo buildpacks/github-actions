@@ -3,7 +3,27 @@
 
 [gha]: https://docs.github.com/en/free-pro-team@latest/actions
 
-## Registry Action
+## Buildpack Info Action
+The buildpack-info action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/buildpack-info
+```
+
+#### Inputs
+| Parameter | Description
+| :-------- | :----------
+| `path` | Optional path to `buildpack.toml`. Defaults to `<working-dir>/buildpack.toml` 
+
+#### Outputs
+| Parameter | Description
+| :-------- | :----------
+| `id` | The contents of `buildpack.id`
+| `name` | The contents of `buildpack.name`
+| `version` | The contents of `buildpack.version`
+| `homepage` | The contents of `buildpack.homepage` 
+
+## Registry Action 
 The registry action adds and yanks buildpack releases in the [Buildpack Registry Index][bri].
 
 [bri]: https://github.com/buildpacks/registry-index
@@ -18,6 +38,7 @@ with:
   address: index.docker.io/buildpacksio/test-buildpack@${{ steps.deploy.outputs.digest }}
 ```
 
+#### Inputs
 | Parameter | Description
 | :-------- | :----------
 | `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
@@ -35,6 +56,7 @@ with:
   yank:    true
 ```
 
+#### Inputs
 | Parameter | Description
 | :-------- | :----------
 | `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
