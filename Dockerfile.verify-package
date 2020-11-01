@@ -1,0 +1,35 @@
+FROM golang:1.15 as build-stage
+
+RUN curl \
+      --show-error \
+      --silent \
+      --location \
+      "https://github.com/google/go-containerregistry/releases/download/v0.1.4/go-containerregistry_Linux_x86_64.tar.gz" \
+    | tar -C /bin -xz crane
+
+RUN curl \
+      --show-error \
+      --silent \
+      --location \
+      --output /bin/jq \
+      "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" \
+    && chmod +x /bin/jq
+
+RUN curl \
+      --show-error \
+      --silent \
+      --location \
+      --output /bin/yj \
+      "https://github.com/sclevine/yj/releases/download/v5.0.0/yj-linux" \
+    && chmod +x /bin/yj
+
+FROM ubuntu:latest
+COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build-stage /bin/crane /bin/crane
+COPY --from=build-stage /bin/jq /bin/jq
+COPY --from=build-stage /bin/yj /bin/yj
+
+COPY dist/verify-package.sh /bin/action
+RUN chmod +x /bin/action
+
+ENTRYPOINT ["/bin/action"]
