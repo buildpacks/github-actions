@@ -64,6 +64,26 @@ with:
 | `version` | The version of the buildpack that is being added to the registry.
 | `yank` | `true` if this version should be yanked.
 
+## Setup pack CLI Action
+The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`][yj] to the environment.
+
+[crane]: https://github.com/google/go-containerregistry/tree/master/cmd/crane
+[jq]:    https://stedolan.github.io/jq/
+[pack]:  https://github.com/buildpacks/pack
+[yj]:    https://github.com/sclevine/yj
+
+```yaml
+uses: buildpacks/github-actions/setup-pack
+```
+
+#### Inputs
+| Parameter | Description
+| :-------- | :----------
+| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to latest release.
+| `jq-version` | Optional version of [`jq`][jq] to install. Defaults to latest release.
+| `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
+| `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release. 
+
 ## License
 This library is released under version 2.0 of the [Apache License][a].
 
