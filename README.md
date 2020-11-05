@@ -3,6 +3,21 @@
 
 [gha]: https://docs.github.com/en/free-pro-team@latest/actions
 
+- [GitHub Actions](#github-actions)
+  - [Buildpack Info Action](#buildpack-info-action)
+      - [Inputs](#inputs)
+      - [Outputs](#outputs)
+  - [Registry Action](#registry-action)
+    - [Add](#add)
+      - [Inputs](#inputs-1)
+    - [Yank](#yank)
+      - [Inputs](#inputs-2)
+  - [Setup pack CLI Action](#setup-pack-cli-action)
+      - [Inputs](#inputs-3)
+  - [Verify Buildpackage Action](#verify-buildpackage-action)
+      - [Inputs](#inputs-4)
+  - [License](#license)
+
 ## Buildpack Info Action
 The buildpack-info action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
 
@@ -84,8 +99,25 @@ uses: buildpacks/github-actions/setup-pack
 | `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
 | `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release. 
 
+## Verify Buildpackage Action
+The verify-buildpackage action parses the metadata on a buildpackage and verifies that the `id` and `version` match expected values.
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/verify-buildpackage
+with:
+  id:      test-buildpack
+  version: "1.0.0"
+  address: ghcr.io/buildpacks/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
+```
+
+#### Inputs
+| Parameter | Description
+| :-------- | :----------
+| `id` | The expected `id` for the buildpackage
+| `version` | The expected `version` for the buildpackage
+| `address` | The digest-style address of the buildpackage to verify
+
 ## License
 This library is released under version 2.0 of the [Apache License][a].
 
 [a]: https://www.apache.org/licenses/LICENSE-2.0
-
