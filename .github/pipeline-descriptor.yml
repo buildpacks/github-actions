@@ -1,0 +1,7 @@
+github:
+  username: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}
+  token:    ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
+
+codeowners:
+- path:  "*"
+  owner: "@buildpacks/distribution-maintainers"
