@@ -1,4 +1,6 @@
-github_token: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
+github:
+  username: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}
+  token:    ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
 
 codeowners:
 - path:  "*"
