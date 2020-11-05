@@ -107,7 +107,7 @@ uses: docker://ghcr.io/buildpacks/actions/verify-buildpackage
 with:
   id:      test-buildpack
   version: "1.0.0"
-  address: ghcr.io/buildpacks/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
+  address: ghcr.io/example/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
 ```
 
 #### Inputs
