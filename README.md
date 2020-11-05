@@ -49,7 +49,7 @@ uses: docker://ghcr.io/buildpacks/actions/registry
 with:
   token:   ${{ secrets.IMPLEMENTATION_PAT }}
   id:      $buildpacksio/test-buildpack
-  version: {{ steps.deploy.outputs.version }}
+  version: ${{ steps.deploy.outputs.version }}
   address: index.docker.io/buildpacksio/test-buildpack@${{ steps.deploy.outputs.digest }}
 ```
 
