@@ -8,8 +8,8 @@
     - [Compute Mmetadata Action](#compute-mmetadata-action)
       - [Inputs](#inputs)
       - [Outputs](#outputs)
-  - [Registry Action](#registry-action)
-    - [Add](#add)
+  - [Buildpackage](#buildpackage)
+    - [Verify Metadata Action](#verify-metadata-action)
       - [Inputs](#inputs-1)
     - [Yank](#yank)
       - [Inputs](#inputs-2)
@@ -41,8 +41,30 @@ uses: docker://ghcr.io/buildpacks/actions/buildpack/compute-metadata
 | `version` | The contents of `buildpack.version`
 | `homepage` | The contents of `buildpack.homepage` 
 
-## Registry Action 
-The registry action adds and yanks buildpack releases in the [Buildpack Registry Index][bri].
+## Buildpackage
+
+### Verify Metadata Action
+The `buildpackage/verify-metadata` action parses the metadata on a buildpackage and verifies that the `id` and `version` match expected values.
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/buildpackage/verify-metadata
+with:
+  id:      test-buildpack
+  version: "1.0.0"
+  address: ghcr.io/example/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
+```
+
+#### Inputs
+| Parameter | Description
+| :-------- | :----------
+| `id` | The expected `id` for the buildpackage
+| `version` | The expected `version` for the buildpackage
+| `address` | The digest-style address of the buildpackage to verify
+
+## Registry
+
+### Add Entry Action 
+The `registry/add-entry` action adds an entry to the [Buildpack Registry Index][bri].
 
 [bri]: https://github.com/buildpacks/registry-index
 
@@ -101,24 +123,6 @@ uses: buildpacks/github-actions/setup-pack
 | `jq-version` | Optional version of [`jq`][jq] to install. Defaults to latest release.
 | `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
 | `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release. 
-
-## Verify Buildpackage Action
-The verify-buildpackage action parses the metadata on a buildpackage and verifies that the `id` and `version` match expected values.
-
-```yaml
-uses: docker://ghcr.io/buildpacks/actions/verify-buildpackage
-with:
-  id:      test-buildpack
-  version: "1.0.0"
-  address: ghcr.io/example/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
-```
-
-#### Inputs
-| Parameter | Description
-| :-------- | :----------
-| `id` | The expected `id` for the buildpackage
-| `version` | The expected `version` for the buildpackage
-| `address` | The digest-style address of the buildpackage to verify
 
 ## License
 This library is released under version 2.0 of the [Apache License][a].

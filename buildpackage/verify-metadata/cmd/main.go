@@ -22,32 +22,13 @@ import (
 
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 
-	"github.com/buildpacks/github-actions/verify"
+	"github.com/buildpacks/github-actions/buildpackage/verify-metadata"
+	"github.com/buildpacks/github-actions/toolkit"
 )
 
 func main() {
-	var (
-		v verify.Verifier
-
-		err error
-		ok  bool
-	)
-
-	v.Image = remote.Image
-
-	if v.ID, ok = os.LookupEnv("INPUT_ID"); !ok {
-		panic(fmt.Errorf("id must be specified"))
-	}
-
-	if v.Version, ok = os.LookupEnv("INPUT_VERSION"); !ok {
-		panic(fmt.Errorf("version must be specified"))
-	}
-
-	if v.Address, ok = os.LookupEnv("INPUT_ADDRESS"); !ok {
-		panic(fmt.Errorf("address must be specified"))
-	}
-
-	if err = v.Verify(); err != nil {
-		panic(err)
+	if err := metadata.VerifyMetadata(&toolkit.DefaultToolkit{}, remote.Image); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
