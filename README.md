@@ -11,11 +11,12 @@
   - [Buildpackage](#buildpackage)
     - [Verify Metadata Action](#verify-metadata-action)
       - [Inputs](#inputs-1)
-    - [Yank](#yank)
+  - [Registry](#registry)
+    - [Add Entry Action](#add-entry-action)
       - [Inputs](#inputs-2)
-  - [Setup pack CLI Action](#setup-pack-cli-action)
+    - [Yank Entry Action](#yank-entry-action)
       - [Inputs](#inputs-3)
-  - [Verify Buildpackage Action](#verify-buildpackage-action)
+  - [Setup pack CLI Action](#setup-pack-cli-action)
       - [Inputs](#inputs-4)
   - [License](#license)
 
@@ -68,9 +69,8 @@ The `registry/add-entry` action adds an entry to the [Buildpack Registry Index][
 
 [bri]: https://github.com/buildpacks/registry-index
 
-### Add
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/registry
+uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
 with:
   token:   ${{ secrets.IMPLEMENTATION_PAT }}
   id:      $buildpacksio/test-buildpack
@@ -86,14 +86,15 @@ with:
 | `version` | The version of the buildpack that is being added to the registry.
 | `address` | The Docker URI of the buildpack artifact.  This is must be in `{host}/{repo}@{digest}` form.
 
-### Yank
+### Yank Entry Action
+The `registry/yank-entry` action yanks an entry from the [Buildpack Registry Index][bri].
+
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/registry
+uses: docker://ghcr.io/buildpacks/actions/registry/yank-entry
 with:
   token:   ${{ secrets.IMPLEMENTATION_PAT }}
   id:      buildpacksio/test-buildpack
   version: ${{ steps.deploy.outputs.version }}
-  yank:    true
 ```
 
 #### Inputs
