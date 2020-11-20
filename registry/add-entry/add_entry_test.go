@@ -17,6 +17,7 @@
 package entry_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -56,7 +57,7 @@ func TestAddEntry(t *testing.T) {
 
 			i.On("Create", mock.Anything, "buildpacks", "registry-index", &github.IssueRequest{
 				Title: github.String("ADD test-namespace/test-name@test-version"),
-				Body:  github.String(string(b)),
+				Body:  github.String(fmt.Sprintf("```\n%s\n```", string(b))),
 			}).Return(&github.Issue{
 				Number:  github.Int(1),
 				HTMLURL: github.String("test-html-url"),

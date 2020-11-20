@@ -16,9 +16,19 @@
 
 package registry
 
+import (
+	"regexp"
+)
+
 const (
 	FailureLabel = "failure"
 	SuccessLabel = "succeeded"
+)
+
+var (
+	ValidId      = regexp.MustCompile(`^([a-zA-Z0-9.-]+)/([a-zA-Z0-9./-]+)$`)
+	ValidVersion = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`)
+	ValidAddress = regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?::[0-9]+)?/[^:]+@sha256:[A-Fa-f0-9]{64}`)
 )
 
 type Request struct {

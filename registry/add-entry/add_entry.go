@@ -55,7 +55,7 @@ func AddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout *time.T
 
 	req := &github.IssueRequest{
 		Title: github.String(fmt.Sprintf("ADD %s@%s", id, version)),
-		Body:  github.String(string(body)),
+		Body:  github.String(fmt.Sprintf("```\n%s\n```", string(body))),
 	}
 
 	issue, _, err := issues.Create(context.Background(), "buildpacks", "registry-index", req)

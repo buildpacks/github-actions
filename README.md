@@ -6,18 +6,13 @@
 - [GitHub Actions](#github-actions)
   - [Buildpack](#buildpack)
     - [Compute Mmetadata Action](#compute-mmetadata-action)
-      - [Inputs](#inputs)
-      - [Outputs](#outputs)
   - [Buildpackage](#buildpackage)
     - [Verify Metadata Action](#verify-metadata-action)
-      - [Inputs](#inputs-1)
   - [Registry](#registry)
     - [Add Entry Action](#add-entry-action)
-      - [Inputs](#inputs-2)
+    - [Compute Metadata Action](#compute-metadata-action)
     - [Yank Entry Action](#yank-entry-action)
-      - [Inputs](#inputs-3)
   - [Setup pack CLI Action](#setup-pack-cli-action)
-      - [Inputs](#inputs-4)
   - [License](#license)
 
 ## Buildpack
@@ -29,18 +24,18 @@ The `buildpack/compute-metadata` action parses a `buildpack.toml` and exposes th
 uses: docker://ghcr.io/buildpacks/actions/buildpack/compute-metadata
 ```
 
-#### Inputs
+#### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `path` | Optional path to `buildpack.toml`. Defaults to `<working-dir>/buildpack.toml` 
+| `path` | Optional path to `buildpack.toml`. Defaults to `<working-dir>/buildpack.toml`
 
-#### Outputs
+#### Outputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
 | `id` | The contents of `buildpack.id`
 | `name` | The contents of `buildpack.name`
 | `version` | The contents of `buildpack.version`
-| `homepage` | The contents of `buildpack.homepage` 
+| `homepage` | The contents of `buildpack.homepage`
 
 ## Buildpackage
 
@@ -55,7 +50,7 @@ with:
   address: ghcr.io/example/test-buildpack@sha256:04ba2d17480910bd340f0305d846b007148dafd64bc6fc2626870c174b7c7de7
 ```
 
-#### Inputs
+#### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
 | `id` | The expected `id` for the buildpackage
@@ -63,11 +58,10 @@ with:
 | `address` | The digest-style address of the buildpackage to verify
 
 ## Registry
-
-### Add Entry Action 
-The `registry/add-entry` action adds an entry to the [Buildpack Registry Index][bri].
-
 [bri]: https://github.com/buildpacks/registry-index
+
+### Add Entry Action
+The `registry/add-entry` action adds an entry to the [Buildpack Registry Index][bri].
 
 ```yaml
 uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
@@ -78,13 +72,36 @@ with:
   address: index.docker.io/buildpacksio/test-buildpack@${{ steps.deploy.outputs.digest }}
 ```
 
-#### Inputs
+#### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
 | `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
 | `id` | A buildpack id that your user is allowed to manage.  This is must be in `{namespace}/{name}` format.
 | `version` | The version of the buildpack that is being added to the registry.
 | `address` | The Docker URI of the buildpack artifact.  This is must be in `{host}/{repo}@{digest}` form.
+
+### Compute Metadata Action
+The `registry/compute-metadata` action parses a [`buildpacks/registry-index`][bri] issue and exposes the contents as output parameters.
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
+with:
+  issue:   ${{ toJSON(github.events.issue) }}
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `issue` | The GitHub issue payload.
+
+#### Outputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `id` | The contents of `id`
+| `version` | The contents of `version`
+| `address` | The contents of `addr`
+| `namespace` | The namespace portion of `id`
+| `name` | The name portion of `id`
 
 ### Yank Entry Action
 The `registry/yank-entry` action yanks an entry from the [Buildpack Registry Index][bri].
@@ -97,7 +114,7 @@ with:
   version: ${{ steps.deploy.outputs.version }}
 ```
 
-#### Inputs
+#### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
 | `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
@@ -117,13 +134,13 @@ The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`
 uses: buildpacks/github-actions/setup-pack
 ```
 
-#### Inputs
+#### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
 | `crane-version` | Optional version of [`crane`][crane] to install. Defaults to latest release.
 | `jq-version` | Optional version of [`jq`][jq] to install. Defaults to latest release.
 | `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
-| `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release. 
+| `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release.
 
 ## License
 This library is released under version 2.0 of the [Apache License][a].
