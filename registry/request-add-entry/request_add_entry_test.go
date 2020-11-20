@@ -30,12 +30,12 @@ import (
 
 	"github.com/buildpacks/github-actions/registry"
 	mocks2 "github.com/buildpacks/github-actions/registry/mocks"
-	"github.com/buildpacks/github-actions/registry/yank-entry"
+	"github.com/buildpacks/github-actions/registry/request-add-entry"
 	"github.com/buildpacks/github-actions/toolkit/mocks"
 )
 
-func TestYankEntry(t *testing.T) {
-	spec.Run(t, "yank-entry", func(t *testing.T, when spec.G, it spec.S) {
+func TestRequestAddEntry(t *testing.T) {
+	spec.Run(t, "request-add-entry", func(t *testing.T, when spec.G, it spec.S) {
 		var (
 			Expect = NewWithT(t).Expect
 
@@ -48,16 +48,15 @@ func TestYankEntry(t *testing.T) {
 			tk.On("GetInput", "version").Return("test-version", true)
 			tk.On("GetInput", "address").Return("test-address", true)
 
-			b, err := toml.Marshal(registry.Request{
+			b, err := toml.Marshal(registry.IndexRequest{
 				ID:      "test-namespace/test-name",
 				Version: "test-version",
 				Address: "test-address",
-				Yank:    true,
 			})
 			Expect(err).NotTo(HaveOccurred())
 
 			i.On("Create", mock.Anything, "buildpacks", "registry-index", &github.IssueRequest{
-				Title: github.String("YANK test-namespace/test-name@test-version"),
+				Title: github.String("ADD test-namespace/test-name@test-version"),
 				Body:  github.String(fmt.Sprintf("```\n%s\n```", string(b))),
 			}).Return(&github.Issue{
 				Number:  github.Int(1),
@@ -65,7 +64,7 @@ func TestYankEntry(t *testing.T) {
 			}, nil, nil)
 		})
 
-		it("yank entry succeeds", func() {
+		it("add entry succeeds", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
 				Labels: []*github.Label{{Name: github.String(registry.SuccessLabel)}},
 			}, nil, nil)
@@ -75,10 +74,10 @@ func TestYankEntry(t *testing.T) {
 			interval := time.NewTicker(1)
 			defer interval.Stop()
 
-			Expect(entry.YankEntry(tk, i, timeout, interval)).To(Succeed())
+			Expect(entry.RequestAddEntry(tk, i, timeout, interval)).To(Succeed())
 		})
 
-		it("yank entry fails", func() {
+		it("add entry fails", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
 				Labels: []*github.Label{{Name: github.String(registry.FailureLabel)}},
 			}, nil, nil)
@@ -88,7 +87,7 @@ func TestYankEntry(t *testing.T) {
 			interval := time.NewTicker(1)
 			defer interval.Stop()
 
-			Expect(entry.YankEntry(tk, i, timeout, interval)).
+			Expect(entry.RequestAddEntry(tk, i, timeout, interval)).
 				To(MatchError("::error ::Registry request test-html-url failed"))
 		})
 

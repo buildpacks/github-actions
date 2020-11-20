@@ -25,7 +25,7 @@ import (
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
 
-	"github.com/buildpacks/github-actions/registry/add-entry"
+	"github.com/buildpacks/github-actions/registry/request-yank-entry"
 	"github.com/buildpacks/github-actions/toolkit"
 )
 
@@ -45,7 +45,7 @@ func main() {
 	interval := time.NewTicker(30 * time.Second)
 	defer interval.Stop()
 
-	if err := entry.AddEntry(tk, gh.Issues, timeout, interval); err != nil {
+	if err := entry.RequestYankEntry(tk, gh.Issues, timeout, interval); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

@@ -38,7 +38,7 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 		return toolkit.FailedErrorf("unable to unmarshal issue\n%w", err)
 	}
 
-	var request registry.Request
+	var request registry.IndexRequest
 	if err := toml.Unmarshal([]byte(strings.ReplaceAll(*issue.Body, "```", "")), &request); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal body\n%w", err)
 	}

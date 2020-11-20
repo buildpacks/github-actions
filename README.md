@@ -9,9 +9,9 @@
   - [Buildpackage](#buildpackage)
     - [Verify Metadata Action](#verify-metadata-action)
   - [Registry](#registry)
-    - [Add Entry Action](#add-entry-action)
     - [Compute Metadata Action](#compute-metadata-action)
-    - [Yank Entry Action](#yank-entry-action)
+    - [Request Add Entry Action](#request-add-entry-action)
+    - [Request Yank Entry Action](#request-yank-entry-action)
   - [Setup pack CLI Action](#setup-pack-cli-action)
   - [License](#license)
 
@@ -60,26 +60,6 @@ with:
 ## Registry
 [bri]: https://github.com/buildpacks/registry-index
 
-### Add Entry Action
-The `registry/add-entry` action adds an entry to the [Buildpack Registry Index][bri].
-
-```yaml
-uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
-with:
-  token:   ${{ secrets.IMPLEMENTATION_PAT }}
-  id:      $buildpacksio/test-buildpack
-  version: ${{ steps.deploy.outputs.version }}
-  address: index.docker.io/buildpacksio/test-buildpack@${{ steps.deploy.outputs.digest }}
-```
-
-#### Inputs <!-- omit in toc -->
-| Parameter | Description
-| :-------- | :----------
-| `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
-| `id` | A buildpack id that your user is allowed to manage.  This is must be in `{namespace}/{name}` format.
-| `version` | The version of the buildpack that is being added to the registry.
-| `address` | The Docker URI of the buildpack artifact.  This is must be in `{host}/{repo}@{digest}` form.
-
 ### Compute Metadata Action
 The `registry/compute-metadata` action parses a [`buildpacks/registry-index`][bri] issue and exposes the contents as output parameters.
 
@@ -103,11 +83,31 @@ with:
 | `namespace` | The namespace portion of `id`
 | `name` | The name portion of `id`
 
-### Yank Entry Action
-The `registry/yank-entry` action yanks an entry from the [Buildpack Registry Index][bri].
+### Request Add Entry Action
+The `registry/request-add-entry` action adds an entry to the [Buildpack Registry Index][bri].
 
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/registry/yank-entry
+uses: docker://ghcr.io/buildpacks/actions/registry/request-add-entry
+with:
+  token:   ${{ secrets.IMPLEMENTATION_PAT }}
+  id:      $buildpacksio/test-buildpack
+  version: ${{ steps.deploy.outputs.version }}
+  address: index.docker.io/buildpacksio/test-buildpack@${{ steps.deploy.outputs.digest }}
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
+| `id` | A buildpack id that your user is allowed to manage.  This is must be in `{namespace}/{name}` format.
+| `version` | The version of the buildpack that is being added to the registry.
+| `address` | The Docker URI of the buildpack artifact.  This is must be in `{host}/{repo}@{digest}` form.
+
+### Request Yank Entry Action
+The `registry/request-yank-entry` action yanks an entry from the [Buildpack Registry Index][bri].
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/registry/request-yank-entry
 with:
   token:   ${{ secrets.IMPLEMENTATION_PAT }}
   id:      buildpacksio/test-buildpack

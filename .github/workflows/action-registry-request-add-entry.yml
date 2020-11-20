@@ -1,15 +1,15 @@
-name: Action registry-yank-entry
+name: Action registry-request-add-entry
 "on":
   pull_request:
     paths:
     - registry/*
-    - registry/yank-entry/**
+    - registry/request-add-entry/**
   push:
     branches:
     - main
     paths:
     - registry/*
-    - registry/yank-entry/**
+    - registry/request-add-entry/**
   release:
     types:
     - published
@@ -70,6 +70,6 @@ jobs:
             fi
       env:
         PUSH:    ${{ github.event_name != 'pull_request' }}
-        SOURCE:  registry/yank-entry/cmd
-        TARGET:  ghcr.io/buildpacks/actions/registry/yank-entry
+        SOURCE:  registry/request-add-entry/cmd
+        TARGET:  ghcr.io/buildpacks/actions/registry/request-add-entry
         VERSION: ${{ steps.version.outputs.version }}

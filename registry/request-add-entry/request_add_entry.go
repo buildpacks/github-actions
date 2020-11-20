@@ -28,7 +28,7 @@ import (
 	"github.com/buildpacks/github-actions/toolkit"
 )
 
-func AddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout *time.Timer, interval *time.Ticker) error {
+func RequestAddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout *time.Timer, interval *time.Ticker) error {
 	id, ok := tk.GetInput("id")
 	if !ok {
 		return toolkit.FailedError("id must be set")
@@ -44,7 +44,7 @@ func AddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout *time.T
 		return toolkit.FailedError("address must be set")
 	}
 
-	body, err := toml.Marshal(registry.Request{
+	body, err := toml.Marshal(registry.IndexRequest{
 		ID:      id,
 		Version: version,
 		Address: address,

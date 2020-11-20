@@ -48,7 +48,7 @@ func TestComputeMetadata(t *testing.T) {
 			return string(b)
 		}
 
-		asTOMLString := func(request registry.Request) string {
+		asTOMLString := func(request registry.IndexRequest) string {
 			b, err := toml.Marshal(request)
 			ExpectWithOffset(1, err).NotTo(HaveOccurred())
 
@@ -57,7 +57,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when id is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.Request{
+				Body: github.String(asTOMLString(registry.IndexRequest{
 					ID: "test@namespace/test-name",
 				})),
 			}), true)
@@ -67,7 +67,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when version is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.Request{
+				Body: github.String(asTOMLString(registry.IndexRequest{
 					ID:      "test-namespace/test-name",
 					Version: "test-version",
 				})),
@@ -78,7 +78,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when address is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.Request{
+				Body: github.String(asTOMLString(registry.IndexRequest{
 					ID:      "test-namespace/test-name",
 					Version: "0.0.0",
 					Address: "host.com:443/repository/image:tag",
@@ -90,7 +90,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("computes metadata", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.Request{
+				Body: github.String(asTOMLString(registry.IndexRequest{
 					ID:      "test-namespace/test-name",
 					Version: "0.0.0",
 					Address: "host.com:443/repository/image@sha256:133f2117e15569ca59645eddad78f4a6a675c435f9614e4b137364274f3a7614",

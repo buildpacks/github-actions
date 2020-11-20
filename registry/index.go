@@ -31,7 +31,7 @@ var (
 	ValidAddress = regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?::[0-9]+)?/[^:]+@sha256:[A-Fa-f0-9]{64}`)
 )
 
-type Request struct {
+type IndexRequest struct {
 	ID      string
 	Version string
 	Address string `toml:"addr"`
