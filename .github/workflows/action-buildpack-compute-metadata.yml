@@ -1,0 +1,73 @@
+name: Action buildpack-compute-metadata
+"on":
+  pull_request:
+    paths:
+    - buildpack/compute-metadata/**
+  push:
+    branches:
+    - main
+    paths:
+    - buildpack/compute-metadata/**
+  release:
+    types:
+    - published
+jobs:
+  create-action:
+    name: Create Action
+    runs-on:
+    - ubuntu-latest
+    steps:
+    - if:   ${{ github.event_name != 'pull_request' || ! github.event.pull_request.head.repo.fork }}
+      name: Docker login ghcr.io
+      uses: docker/login-action@v1
+      with:
+        password: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
+        registry: ghcr.io
+        username: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}
+    - uses: actions/checkout@v2
+    - id:   version
+      name: Compute Version
+      run:  |
+            #!/usr/bin/env bash
+
+            set -euo pipefail
+
+            if [[ ${GITHUB_REF} =~ refs/tags/v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              VERSION=${BASH_REMATCH[1]}
+            elif [[ ${GITHUB_REF} =~ refs/heads/(.+) ]]; then
+              VERSION=${BASH_REMATCH[1]}
+            else
+              VERSION=$(git rev-parse --short HEAD)
+            fi
+
+            echo "::set-output name=version::${VERSION}"
+            echo "Selected ${VERSION} from
+              * ref: ${GITHUB_REF}
+              * sha: ${GITHUB_SHA}
+            "
+    - name: Create Action
+      run:  |
+            #!/usr/bin/env bash
+
+            set -euo pipefail
+
+            echo "::group::Building ${TARGET}:${VERSION}"
+              docker build \
+                --file Dockerfile \
+                --build-arg "SOURCE=${SOURCE}" \
+                --tag "${TARGET}:${VERSION}" \
+                .
+            echo "::endgroup::"
+
+            if [[ "${PUSH}" == "true" ]]; then
+              echo "::group::Pushing ${TARGET}:${VERSION}"
+                docker push "${TARGET}:${VERSION}"
+              echo "::endgroup::"
+            else
+              echo "Skipping push"
+            fi
+      env:
+        PUSH:    ${{ github.event_name != 'pull_request' }}
+        SOURCE:  buildpack/compute-metadata/cmd
+        TARGET:  ghcr.io/buildpacks/actions/buildpack/compute-metadata
+        VERSION: ${{ steps.version.outputs.version }}

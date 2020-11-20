@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package info_test
+package metadata_test
 
 import (
-	"bytes"
 	"path/filepath"
 	"testing"
 
@@ -25,31 +24,29 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 
-	"github.com/buildpacks/github-actions/info"
+	metadata "github.com/buildpacks/github-actions/buildpack/compute-metadata"
+	"github.com/buildpacks/github-actions/toolkit/mocks"
 )
 
-func TestBuildpackInfo(t *testing.T) {
-	spec.Run(t, "buildpack-info", func(t *testing.T, when spec.G, it spec.S) {
+func TestComputeMetadata(t *testing.T) {
+	spec.Run(t, "compute-metadata", func(t *testing.T, when spec.G, it spec.S) {
 		var (
 			Expect = NewWithT(t).Expect
 
-			b = &bytes.Buffer{}
-
-			i = info.BuildpackInfo{
-				Path:   filepath.Join("testdata", "buildpack.toml"),
-				Writer: b,
-			}
+			tk = &mocks.Toolkit{}
 		)
 
-		it("informs", func() {
-			Expect(i.Inform()).To(Succeed())
+		it.Before(func() {
+			tk.On("GetInput", "path").Return(filepath.Join("testdata", "buildpack.toml"), true)
+		})
 
-			Expect(b.String()).To(Equal(`::set-output name=id::test-id
-::set-output name=name::test-name
-::set-output name=version::test-version
-::set-output name=homepage::test-homepage
-`,
-			))
+		it("computes metadata", func() {
+			tk.On("SetOutput", "id", "test-id")
+			tk.On("SetOutput", "name", "test-name")
+			tk.On("SetOutput", "version", "test-version")
+			tk.On("SetOutput", "homepage", "test-homepage")
+
+			Expect(metadata.ComputeMetadata(tk)).To(Succeed())
 		})
 	}, spec.Report(report.Terminal{}))
 }

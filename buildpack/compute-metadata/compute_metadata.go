@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-package info
+package metadata
 
 import (
-	"fmt"
-	"io"
 	"io/ioutil"
 
 	"github.com/buildpacks/libcnb"
 	"github.com/pelletier/go-toml"
+
+	"github.com/buildpacks/github-actions/toolkit"
 )
 
-type BuildpackInfo struct {
-	Path   string
-	Writer io.Writer
-}
+func ComputeMetadata(tk toolkit.Toolkit) error {
+	path := "buildpack.toml"
+	if s, ok := tk.GetInput("path"); ok {
+		path = s
+	}
 
-func (b BuildpackInfo) Inform() error {
-	c, err := ioutil.ReadFile(b.Path)
+	c, err := ioutil.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("unable to read %s\n%w", b.Path, err)
+		return toolkit.FailedErrorf("unable to read %s", path)
 	}
 
 	var bp libcnb.Buildpack
 	if err := toml.Unmarshal(c, &bp); err != nil {
-		return fmt.Errorf("unable to unmarhal %s\n%w", b.Path, err)
+		return toolkit.FailedErrorf("unable to unmarshal %s", path)
 	}
 
-	_, _ = fmt.Fprintf(b.Writer, "::set-output name=id::%s\n", bp.Info.ID)
-	_, _ = fmt.Fprintf(b.Writer, "::set-output name=name::%s\n", bp.Info.Name)
-	_, _ = fmt.Fprintf(b.Writer, "::set-output name=version::%s\n", bp.Info.Version)
-	_, _ = fmt.Fprintf(b.Writer, "::set-output name=homepage::%s\n", bp.Info.Homepage)
+	tk.SetOutput("id", bp.Info.ID)
+	tk.SetOutput("name", bp.Info.Name)
+	tk.SetOutput("version", bp.Info.Version)
+	tk.SetOutput("homepage", bp.Info.Homepage)
 
 	return nil
 }

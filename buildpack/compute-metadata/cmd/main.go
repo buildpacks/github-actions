@@ -17,22 +17,16 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/buildpacks/github-actions/info"
+	"github.com/buildpacks/github-actions/buildpack/compute-metadata"
+	"github.com/buildpacks/github-actions/toolkit"
 )
 
 func main() {
-	i := info.BuildpackInfo{
-		Path:   "buildpack.toml",
-		Writer: os.Stdout,
-	}
-
-	if s, ok := os.LookupEnv("INPUT_PATH"); ok {
-		i.Path = s
-	}
-
-	if err := i.Inform(); err != nil {
-		panic(err)
+	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

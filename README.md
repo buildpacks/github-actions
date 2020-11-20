@@ -4,7 +4,8 @@
 [gha]: https://docs.github.com/en/free-pro-team@latest/actions
 
 - [GitHub Actions](#github-actions)
-  - [Buildpack Info Action](#buildpack-info-action)
+  - [Buildpack](#buildpack)
+    - [Compute Mmetadata Action](#compute-mmetadata-action)
       - [Inputs](#inputs)
       - [Outputs](#outputs)
   - [Registry Action](#registry-action)
@@ -18,11 +19,13 @@
       - [Inputs](#inputs-4)
   - [License](#license)
 
-## Buildpack Info Action
-The buildpack-info action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
+## Buildpack
+
+### Compute Mmetadata Action
+The `buildpack/compute-metadata` action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
 
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/buildpack-info
+uses: docker://ghcr.io/buildpacks/actions/buildpack/compute-metadata
 ```
 
 #### Inputs
