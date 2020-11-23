@@ -35,7 +35,7 @@ import (
 )
 
 func TestRequestYankEntry(t *testing.T) {
-	spec.Run(t, "request-yank-entry", func(t *testing.T, when spec.G, it spec.S) {
+	spec.Run(t, "request-yank-entry", func(t *testing.T, context spec.G, it spec.S) {
 		var (
 			Expect = NewWithT(t).Expect
 

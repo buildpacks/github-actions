@@ -33,7 +33,7 @@ import (
 )
 
 func TestComputeMetadata(t *testing.T) {
-	spec.Run(t, "compute-metadata", func(t *testing.T, when spec.G, it spec.S) {
+	spec.Run(t, "compute-metadata", func(t *testing.T, context spec.G, it spec.S) {
 		var (
 			Expect           = NewWithT(t).Expect
 			ExpectWithOffset = NewWithT(t).ExpectWithOffset
@@ -41,39 +41,39 @@ func TestComputeMetadata(t *testing.T) {
 			tk = &mocks.Toolkit{}
 		)
 
-		asJSONString := func(issue github.Issue) string {
-			b, err := json.Marshal(issue)
+		asJSONString := func(v interface{}) string {
+			b, err := json.Marshal(v)
 			ExpectWithOffset(1, err).NotTo(HaveOccurred())
 
 			return string(b)
 		}
 
-		asTOMLString := func(request registry.IndexRequest) string {
-			b, err := toml.Marshal(request)
+		asTOMLString := func(v interface{}) string {
+			b, err := toml.Marshal(v)
 			ExpectWithOffset(1, err).NotTo(HaveOccurred())
 
-			return fmt.Sprintf("```\n%s\n```", string(b))
+			return string(b)
 		}
 
 		it("returns error when id is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.IndexRequest{
+				Body: github.String(fmt.Sprintf("```\n%s\n```", asTOMLString(registry.IndexRequest{
 					ID: "test@namespace/test-name",
-				})),
+				}))),
 			}), true)
 
-			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid id 'test@namespace/test-name'"))
+			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid id test@namespace/test-name"))
 		})
 
 		it("returns error when version is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(registry.IndexRequest{
+				Body: github.String(fmt.Sprintf("```\n%s\n```", asTOMLString(registry.IndexRequest{
 					ID:      "test-namespace/test-name",
 					Version: "test-version",
-				})),
+				}))),
 			}), true)
 
-			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid version 'test-version'"))
+			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid version test-version"))
 		})
 
 		it("returns error when address is invalid", func() {
@@ -85,7 +85,7 @@ func TestComputeMetadata(t *testing.T) {
 				})),
 			}), true)
 
-			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid address 'host.com:443/repository/image:tag'"))
+			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid address host.com:443/repository/image:tag"))
 		})
 
 		it("computes metadata", func() {

@@ -80,11 +80,11 @@ func VerifyMetadata(tk toolkit.Toolkit, imageFn ImageFunction) error {
 	}
 
 	if id != m.ID {
-		return toolkit.FailedErrorf("invalid id in buildpackage: expected '%s', found '%s'", id, m.ID)
+		return toolkit.FailedErrorf("invalid id in buildpackage: expected %s, found %s", id, m.ID)
 	}
 
 	if version != m.Version {
-		return toolkit.FailedErrorf("invalid version in buildpackage: expected '%s', found '%s'", version, m.Version)
+		return toolkit.FailedErrorf("invalid version in buildpackage: expected %s, found %s", version, m.Version)
 
 	}
 

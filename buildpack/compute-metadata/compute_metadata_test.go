@@ -29,7 +29,7 @@ import (
 )
 
 func TestComputeMetadata(t *testing.T) {
-	spec.Run(t, "compute-metadata", func(t *testing.T, when spec.G, it spec.S) {
+	spec.Run(t, "compute-metadata", func(t *testing.T, context spec.G, it spec.S) {
 		var (
 			Expect = NewWithT(t).Expect
 

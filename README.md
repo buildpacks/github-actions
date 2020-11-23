@@ -12,6 +12,7 @@
     - [Compute Metadata Action](#compute-metadata-action)
     - [Request Add Entry Action](#request-add-entry-action)
     - [Request Yank Entry Action](#request-yank-entry-action)
+    - [Verify Namespace Owner Action](#verify-namespace-owner-action)
   - [Setup pack CLI Action](#setup-pack-cli-action)
   - [License](#license)
 
@@ -121,6 +122,30 @@ with:
 | `id` | A buildpack id that your user is allowed to manage.  This is must be in `{namespace}/{name}` format.
 | `version` | The version of the buildpack that is being added to the registry.
 | `yank` | `true` if this version should be yanked.
+
+### Verify Namespace Owner Action
+The `registry/verify-namespace-owner` action verifies that a user is an owner of a namespace in the [Buildpack Registry Index][bri].
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/registry/verify-namespace-owner
+with:
+  token: ${{ secrets.BOT_TOKEN }}
+  owner: ${{ env.NAMESPACES_OWNER }}
+  repository: ${{ env.NAMESPACES_REPOSITORY }}
+  namespace: ${{ steps.metadata.outputs.namespace }}
+  user: ${{ toJSON(github.event.issue.user) }}
+  add-if-missing: true
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `token` | A GitHub token with permissions to commit to the registry namespaces repository.
+| `owner` | The owner name of the registry namespaces repository.
+| `repository` | The repository name of the registry namespaces repository.
+| `namespace` | The namespace to check ownership for.
+| `user` | The Github user payload.
+| `add-if-missing` | Whether to add the current user as the owner of the namespace if that namespace does not exist. (Optional. Default `false`)
 
 ## Setup pack CLI Action
 The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`][yj] to the environment.

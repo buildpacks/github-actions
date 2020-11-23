@@ -14,17 +14,33 @@
  * limitations under the License.
  */
 
-package registry
+package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/google/go-github/v32/github"
+	"golang.org/x/oauth2"
+
+	"github.com/buildpacks/github-actions/registry/verify-namespace-owner"
+	"github.com/buildpacks/github-actions/toolkit"
 )
 
-//go:generate mockery --name IssuesService --case=underscore
+func main() {
+	tk := &toolkit.DefaultToolkit{}
 
-type IssuesService interface {
-	Create(ctx context.Context, owner string, repo string, issue *github.IssueRequest) (*github.Issue, *github.Response, error)
-	Get(ctx context.Context, owner string, repo string, number int) (*github.Issue, *github.Response, error)
+	t, ok := tk.GetInput("token")
+	if !ok {
+		fmt.Println(toolkit.FailedError("token must be specified"))
+		os.Exit(1)
+	}
+
+	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
+
+	if err := owner.VerifyNamespaceOwner(tk, gh.Organizations, gh.Repositories); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

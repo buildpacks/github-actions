@@ -17,6 +17,7 @@
 package metadata
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/buildpacks/libcnb"
@@ -40,6 +41,13 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 	if err := toml.Unmarshal(c, &bp); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal %s", path)
 	}
+
+	fmt.Printf(`Metadata:
+  ID:       %s
+  Name:     %s
+  Version:  %s
+  Homepage: %s
+`, bp.Info.ID, bp.Info.Name, bp.Info.Version, bp.Info.Homepage)
 
 	tk.SetOutput("id", bp.Info.ID)
 	tk.SetOutput("name", bp.Info.Name)

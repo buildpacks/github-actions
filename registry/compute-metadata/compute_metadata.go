@@ -18,6 +18,7 @@ package metadata
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/google/go-github/v32/github"
@@ -48,19 +49,27 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 		name      string
 	)
 	if g := registry.ValidId.FindStringSubmatch(request.ID); g == nil {
-		return toolkit.FailedErrorf("invalid id '%s'", request.ID)
+		return toolkit.FailedErrorf("invalid id %s", request.ID)
 	} else {
 		namespace = g[1]
 		name = g[2]
 	}
 
 	if !registry.ValidVersion.MatchString(request.Version) {
-		return toolkit.FailedErrorf("invalid version '%s'", request.Version)
+		return toolkit.FailedErrorf("invalid version %s", request.Version)
 	}
 
 	if !registry.ValidAddress.MatchString(request.Address) {
-		return toolkit.FailedErrorf("invalid address '%s'", request.Address)
+		return toolkit.FailedErrorf("invalid address %s", request.Address)
 	}
+
+	fmt.Printf(`Metadata:
+  ID:        %s
+  Version:   %s
+  Address:   %s
+  Namespace: %s
+  Name:      %s
+`, request.ID, request.Version, request.Address, namespace, name)
 
 	tk.SetOutput("id", request.ID)
 	tk.SetOutput("version", request.Version)

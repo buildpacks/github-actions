@@ -79,7 +79,7 @@ func TestVerifyMetadata(t *testing.T) {
 				}, nil)
 
 				Expect(metadata.VerifyMetadata(tk, f.Execute)).
-					To(MatchError("::error ::invalid id in buildpackage: expected 'test-id', found 'another-id'"))
+					To(MatchError("::error ::invalid id in buildpackage: expected test-id, found another-id"))
 			})
 
 			it("fails if version does not match", func() {
@@ -90,7 +90,7 @@ func TestVerifyMetadata(t *testing.T) {
 				}, nil)
 
 				Expect(metadata.VerifyMetadata(tk, f.Execute)).
-					To(MatchError("::error ::invalid version in buildpackage: expected 'test-version', found 'another-version'"))
+					To(MatchError("::error ::invalid version in buildpackage: expected test-version, found another-version"))
 			})
 
 			it("passes if version and id match", func() {
