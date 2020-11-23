@@ -55,6 +55,10 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 		name = g[2]
 	}
 
+	if contains(registry.RestrictedNamespaces, namespace) {
+		return toolkit.FailedErrorf("restricted namespace %s", namespace)
+	}
+
 	if !registry.ValidVersion.MatchString(request.Version) {
 		return toolkit.FailedErrorf("invalid version %s", request.Version)
 	}
@@ -78,4 +82,14 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 	tk.SetOutput("name", name)
 
 	return nil
+}
+
+func contains(candidates []string, s string) bool {
+	for _, c := range candidates {
+		if s == c {
+			return true
+		}
+	}
+
+	return false
 }

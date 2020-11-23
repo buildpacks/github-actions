@@ -65,6 +65,16 @@ func TestComputeMetadata(t *testing.T) {
 			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid id test@namespace/test-name"))
 		})
 
+		it("returns error if namespace is restricted", func() {
+			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
+				Body: github.String(asTOMLString(registry.IndexRequest{
+					ID: "cnb/test-name",
+				})),
+			}), true)
+
+			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::restricted namespace cnb"))
+		})
+
 		it("returns error when version is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
 				Body: github.String(fmt.Sprintf("```\n%s\n```", asTOMLString(registry.IndexRequest{
