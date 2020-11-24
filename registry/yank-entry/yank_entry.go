@@ -89,7 +89,7 @@ func YankEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) er
 			Name:  github.String("buildpacks-bot"),
 			Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
 		},
-		Message: github.String(fmt.Sprintf("ADD %s/%s@%s", namespace, name, version)),
+		Message: github.String(fmt.Sprintf("YANK %s/%s@%s", namespace, name, version)),
 		SHA:     content.SHA,
 		Content: []byte(s),
 	}); err != nil {

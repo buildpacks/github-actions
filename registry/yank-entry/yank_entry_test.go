@@ -108,7 +108,7 @@ func TestYankEntry(t *testing.T) {
 						Name:  github.String("buildpacks-bot"),
 						Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
 					},
-					Message: github.String("ADD test-namespace/test-name@test-version"),
+					Message: github.String("YANK test-namespace/test-name@test-version"),
 					Content: []byte(fmt.Sprintf("%s\n",
 						asJSONString(index.Entry{
 							Namespace: "test-namespace",
