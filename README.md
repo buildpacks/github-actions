@@ -14,6 +14,7 @@
     - [Request Add Entry Action](#request-add-entry-action)
     - [Request Yank Entry Action](#request-yank-entry-action)
     - [Verify Namespace Owner Action](#verify-namespace-owner-action)
+    - [Yank Entry Action](#yank-entry-action)
   - [Setup pack CLI Action](#setup-pack-cli-action)
   - [License](#license)
 
@@ -173,6 +174,31 @@ with:
 | `namespace` | The namespace to check ownership for.
 | `user` | The Github user payload.
 | `add-if-missing` | Whether to add the current user as the owner of the namespace if that namespace does not exist. (Optional. Default `false`)
+
+### Yank Entry Action
+The `registry/yank-entry` yanks an entry from the [Buildpack Registry Index][bri].
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/registry/yank-entry
+with:
+  token: ${{ secrets.BOT_TOKEN }}
+  owner: ${{ env.INDEX_OWNER }}
+  repository: ${{ env.INDEX_REPOSITORY }}
+  namespace: ${{ steps.metadata.outputs.namespace }}
+  name: ${{ steps.metadata.outputs.name }}
+  version: ${{ steps.metadata.outputs.version }}
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `token` | A GitHub token with permissions to commit to the registry index repository.
+| `owner` | The owner name of the registry index repository.
+| `repository` | The repository name of the registry index repository.
+| `namespace` | The namespace of the buildpack to register.
+| `name` | The name of the buildpack to register.
+| `version` | The version of the buildpack to register.
+| `address` | The address of the buildpack to register.
 
 ## Setup pack CLI Action
 The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`][yj] to the environment.

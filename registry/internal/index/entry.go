@@ -16,10 +16,45 @@
 
 package index
 
+import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"strings"
+)
+
 type Entry struct {
 	Namespace string `json:"ns"`
 	Name      string `json:"name"`
 	Version   string `json:"version"`
 	Yanked    bool   `json:"yanked"`
 	Address   string `json:"addr"`
+}
+
+func MarshalEntries(entries []Entry) (string, error) {
+	b := &bytes.Buffer{}
+	j := json.NewEncoder(b)
+
+	for _, e := range entries {
+		if err := j.Encode(e); err != nil {
+			return "", err
+		}
+	}
+
+	return b.String(), nil
+}
+
+func UnmarshalEntries(content string) ([]Entry, error) {
+	var entries []Entry
+
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		var e Entry
+		if err := json.Unmarshal(scanner.Bytes(), &e); err != nil {
+			return nil, err
+		}
+		entries = append(entries, e)
+	}
+
+	return entries, scanner.Err()
 }

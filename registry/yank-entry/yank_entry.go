@@ -28,7 +28,7 @@ import (
 	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func AddEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) error {
+func YankEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) error {
 	owner, ok := tk.GetInput("owner")
 	if !ok {
 		return toolkit.FailedError("owner must be set")
@@ -54,16 +54,10 @@ func AddEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) err
 		return toolkit.FailedError("version must be set")
 	}
 
-	address, ok := tk.GetInput("address")
-	if !ok {
-		return toolkit.FailedError("address must be set")
-	}
-
 	file := index.Path(namespace, name)
 	content, _, _, err := repositories.GetContents(context.Background(), owner, repository, file, nil)
 	if err2, ok := err.(*github.ErrorResponse); ok && err2.Response.StatusCode == http.StatusNotFound {
-		fmt.Printf("New Index: %s\n", name)
-		content = &github.RepositoryContent{}
+		return toolkit.FailedErrorf("index %s does not exist", name)
 	} else if err != nil {
 		return toolkit.FailedErrorf("unable to read index %s\n%w", name, err)
 	}
@@ -78,16 +72,12 @@ func AddEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) err
 		return toolkit.FailedErrorf("unable to unmarshal entries\n%w", err)
 	}
 
-	if contains(entries, namespace, version) {
-		return toolkit.FailedErrorf("index %s already has namespace %s and version %s", name, namespace, version)
+	i := indexOf(entries, namespace, version)
+	if i == nil {
+		return toolkit.FailedErrorf("index %s already does not have namespace %s and version %s", name, namespace, version)
 	}
 
-	entries = append(entries, index.Entry{
-		Namespace: namespace,
-		Name:      name,
-		Version:   version,
-		Address:   address,
-	})
+	entries[*i].Yanked = true
 
 	s, err = index.MarshalEntries(entries)
 	if err != nil {
@@ -106,16 +96,16 @@ func AddEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) err
 		return err
 	}
 
-	fmt.Printf("Added %s/%s@%s\n", namespace, name, version)
+	fmt.Printf("Yanked %s/%s@%s\n", namespace, name, version)
 	return nil
 }
 
-func contains(entries []index.Entry, namespace string, version string) bool {
-	for _, e := range entries {
+func indexOf(entries []index.Entry, namespace string, version string) *int {
+	for i, e := range entries {
 		if e.Namespace == namespace && e.Version == version {
-			return true
+			return &i
 		}
 	}
 
-	return false
+	return nil
 }
