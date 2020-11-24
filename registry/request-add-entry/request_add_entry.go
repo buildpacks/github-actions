@@ -24,11 +24,12 @@ import (
 	"github.com/google/go-github/v32/github"
 	"github.com/pelletier/go-toml"
 
-	"github.com/buildpacks/github-actions/registry"
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	"github.com/buildpacks/github-actions/registry/internal/index"
+	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func RequestAddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout *time.Timer, interval *time.Ticker) error {
+func RequestAddEntry(tk toolkit.Toolkit, issues services.IssuesService, timeout *time.Timer, interval *time.Ticker) error {
 	id, ok := tk.GetInput("id")
 	if !ok {
 		return toolkit.FailedError("id must be set")
@@ -44,7 +45,7 @@ func RequestAddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout 
 		return toolkit.FailedError("address must be set")
 	}
 
-	body, err := toml.Marshal(registry.IndexRequest{
+	body, err := toml.Marshal(index.Request{
 		ID:      id,
 		Version: version,
 		Address: address,
@@ -79,9 +80,9 @@ func RequestAddEntry(tk toolkit.Toolkit, issues registry.IssuesService, timeout 
 			}
 
 			for _, l := range issue.Labels {
-				if *l.Name == registry.FailureLabel {
+				if *l.Name == index.RequestFailureLabel {
 					return toolkit.FailedErrorf("Registry request %s failed", url)
-				} else if *l.Name == registry.SuccessLabel {
+				} else if *l.Name == index.RequestSuccessLabel {
 					fmt.Printf("Registry request %s succeeded\n", url)
 					return nil
 				}

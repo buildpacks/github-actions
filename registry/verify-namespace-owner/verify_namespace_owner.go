@@ -21,16 +21,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"path/filepath"
 	"strconv"
 
 	"github.com/google/go-github/v32/github"
 
-	"github.com/buildpacks/github-actions/registry"
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	"github.com/buildpacks/github-actions/registry/internal/namespace"
+	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations registry.OrganizationsService, repositories registry.RepositoriesService) error {
+func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.OrganizationsService, repositories services.RepositoriesService) error {
 	u, ok := tk.GetInput("user")
 	if !ok {
 		return toolkit.FailedError("user must be set")
@@ -51,26 +51,26 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations registry.Organizatio
 		return toolkit.FailedError("repository must be set")
 	}
 
-	namespace, ok := tk.GetInput("namespace")
+	ns, ok := tk.GetInput("namespace")
 	if !ok {
 		return toolkit.FailedError("namespace must be set")
 	}
 
-	file := filepath.Join(registry.Version, fmt.Sprintf("%s.json", namespace))
+	file := namespace.Path(ns)
 	content, _, _, err := repositories.GetContents(context.Background(), owner, repository, file, nil)
 	if err2, ok := err.(*github.ErrorResponse); ok && err2.Response.StatusCode == http.StatusNotFound {
 		if !resolveBool("add-if-missing", tk) {
-			return toolkit.FailedErrorf("invalid namespace %s", namespace)
+			return toolkit.FailedErrorf("invalid namespace %s", ns)
 		}
 
-		message := fmt.Sprintf("New Namespace: %s", namespace)
+		message := fmt.Sprintf("New Namespace: %s", ns)
 		if content, err = addNamespace(user, repositories, owner, repository, file, message); err != nil {
-			return toolkit.FailedErrorf("unable to add namespace %s\n%w", namespace, err)
+			return toolkit.FailedErrorf("unable to add namespace %s\n%w", ns, err)
 		}
 
 		fmt.Println(message)
 	} else if err != nil {
-		return toolkit.FailedErrorf("unable to read namespace %s\n%w", namespace, err)
+		return toolkit.FailedErrorf("unable to read namespace %s\n%w", ns, err)
 	}
 
 	s, err := content.GetContent()
@@ -78,13 +78,13 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations registry.Organizatio
 		return toolkit.FailedError("unable to get namespace content")
 	}
 
-	var n registry.Namespace
+	var n namespace.Namespace
 	if err := json.Unmarshal([]byte(s), &n); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal owners\n%w", err)
 	}
 
-	if registry.IsOwner(n.Owners, registry.ByUser(*user.ID)) {
-		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, namespace)
+	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
+		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, ns)
 		return nil
 	}
 
@@ -93,16 +93,16 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations registry.Organizatio
 		return toolkit.FailedErrorf("unable to list organizations for %s\n%w", *user.Login, err)
 	}
 
-	if registry.IsOwner(n.Owners, registry.ByOrganizations(ids)) {
-		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, namespace)
+	if namespace.IsOwner(n.Owners, namespace.ByOrganizations(ids)) {
+		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, ns)
 		return nil
 	}
 
-	return toolkit.FailedErrorf("%s is not an owner of %s", *user.Login, namespace)
+	return toolkit.FailedErrorf("%s is not an owner of %s", *user.Login, ns)
 }
 
-func addNamespace(user github.User, repositories registry.RepositoriesService, owner string, repository string, path string, message string) (*github.RepositoryContent, error) {
-	b, err := json.Marshal(registry.Namespace{Owners: []registry.Owner{{ID: *user.ID, Type: registry.UserType}}})
+func addNamespace(user github.User, repositories services.RepositoriesService, owner string, repository string, path string, message string) (*github.RepositoryContent, error) {
+	b, err := json.Marshal(namespace.Namespace{Owners: []namespace.Owner{{ID: *user.ID, Type: namespace.UserType}}})
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func addNamespace(user github.User, repositories registry.RepositoriesService, o
 	return createFile.Content, nil
 }
 
-func listOrganizations(user string, organizations registry.OrganizationsService) ([]int64, error) {
+func listOrganizations(user string, organizations services.OrganizationsService) ([]int64, error) {
 	var ids []int64
 
 	opt := &github.ListOptions{PerPage: 100}

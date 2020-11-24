@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package registry
+package services
 
 import (
 	"context"
@@ -22,20 +22,16 @@ import (
 	"github.com/google/go-github/v32/github"
 )
 
-//go:generate mockery --name IssuesService --case=underscore
+//go:generate mockery --all  --inpackage --case=underscore
 
 type IssuesService interface {
 	Create(ctx context.Context, owner string, repo string, issue *github.IssueRequest) (*github.Issue, *github.Response, error)
 	Get(ctx context.Context, owner string, repo string, number int) (*github.Issue, *github.Response, error)
 }
 
-//go:generate mockery --name OrganizationsService --case=underscore
-
 type OrganizationsService interface {
 	List(ctx context.Context, user string, opts *github.ListOptions) ([]*github.Organization, *github.Response, error)
 }
-
-//go:generate mockery --name RepositoriesService --case=underscore
 
 type RepositoriesService interface {
 	CreateFile(ctx context.Context, owner, repo, path string, opts *github.RepositoryContentFileOptions) (*github.RepositoryContentResponse, *github.Response, error)

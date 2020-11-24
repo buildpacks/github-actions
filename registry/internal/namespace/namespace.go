@@ -14,19 +14,40 @@
  * limitations under the License.
  */
 
-package main
+package namespace
 
-import (
-	"fmt"
-	"os"
+var restrictedNamespaces = []string{
+	"buildpack",
+	"buildpack-io",
+	"buildpack.io",
+	"buildpackio",
+	"buildpacks",
+	"buildpacks-io",
+	"buildpacks.io",
+	"buildpacksio",
+	"cnb",
+	"cnbs",
+	"cncf",
+	"cncf-cnb",
+	"cncf-cnbs",
+	"example",
+	"examples",
+	"official",
+	"pack",
+	"sample",
+	"samples",
+}
 
-	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
-)
+type Namespace struct {
+	Owners []Owner
+}
 
-func main() {
-	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+func IsRestricted(namespace string) bool {
+	for _, n := range restrictedNamespaces {
+		if n == namespace {
+			return true
+		}
 	}
+
+	return false
 }

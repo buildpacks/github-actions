@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package main
+package namespace_test
 
 import (
-	"fmt"
-	"os"
+	"testing"
 
-	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
+	. "github.com/onsi/gomega"
+	"github.com/sclevine/spec"
+
+	"github.com/buildpacks/github-actions/registry/internal/namespace"
 )
 
-func main() {
-	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func TestNamespace(t *testing.T) {
+	spec.Run(t, "namespace", func(t *testing.T, context spec.G, it spec.S) {
+		var (
+			Expect = NewWithT(t).Expect
+		)
+
+		it("identifies restricted namespaces", func() {
+			Expect(namespace.IsRestricted("cnb")).To(BeTrue())
+			Expect(namespace.IsRestricted("test-namespace")).To(BeFalse())
+		})
+	})
 }

@@ -24,8 +24,8 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 
-	metadata "github.com/buildpacks/github-actions/buildpack/compute-metadata"
-	"github.com/buildpacks/github-actions/toolkit/mocks"
+	"github.com/buildpacks/github-actions/buildpack/compute-metadata"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 func TestComputeMetadata(t *testing.T) {
@@ -33,7 +33,7 @@ func TestComputeMetadata(t *testing.T) {
 		var (
 			Expect = NewWithT(t).Expect
 
-			tk = &mocks.Toolkit{}
+			tk = &toolkit.MockToolkit{}
 		)
 
 		it.Before(func() {

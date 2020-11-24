@@ -25,12 +25,12 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 const MetadataLabel = "io.buildpacks.buildpackage.metadata"
 
-//go:generate mockery --name ImageFunction --case=underscore
+//go:generate mockery --all --output=./internal/mocks --case=underscore
 
 type ImageFunction func(name.Reference, ...remote.Option) (v1.Image, error)
 

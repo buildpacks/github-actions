@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 
 	"github.com/buildpacks/github-actions/buildpackage/verify-metadata"
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 func main() {

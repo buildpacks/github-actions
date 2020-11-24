@@ -23,7 +23,7 @@ import (
 	"github.com/buildpacks/libcnb"
 	"github.com/pelletier/go-toml"
 
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 func ComputeMetadata(tk toolkit.Toolkit) error {

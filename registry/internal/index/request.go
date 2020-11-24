@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package registry
+package index
 
 import (
 	"regexp"
 )
 
 const (
-	FailureLabel = "failure"
-	SuccessLabel = "succeeded"
+	RequestFailureLabel = "failure"
+	RequestSuccessLabel = "succeeded"
 )
 
 var (
-	ValidId      = regexp.MustCompile(`^([a-zA-Z0-9.-]+)/([a-zA-Z0-9./-]+)$`)
-	ValidVersion = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`)
-	ValidAddress = regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?::[0-9]+)?/[^:]+@sha256:[A-Fa-f0-9]{64}`)
+	ValidRequestId      = regexp.MustCompile(`^([a-zA-Z0-9.-]+)/([a-zA-Z0-9./-]+)$`)
+	ValidRequestVersion = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`)
+	ValidRequestAddress = regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?::[0-9]+)?/[^:]+@sha256:[A-Fa-f0-9]{64}`)
 )
 
-type IndexRequest struct {
+type Request struct {
 	ID      string
 	Version string
 	Address string `toml:"addr"`
-	Yank    bool   `toml:"yaml,omitempty"`
+	Yank    bool   `toml:"yank,omitempty"`
 }

@@ -28,10 +28,10 @@ import (
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/buildpacks/github-actions/registry"
-	mocks2 "github.com/buildpacks/github-actions/registry/mocks"
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	"github.com/buildpacks/github-actions/registry/internal/index"
+	"github.com/buildpacks/github-actions/registry/internal/services"
 	"github.com/buildpacks/github-actions/registry/request-yank-entry"
-	"github.com/buildpacks/github-actions/toolkit/mocks"
 )
 
 func TestRequestYankEntry(t *testing.T) {
@@ -39,8 +39,8 @@ func TestRequestYankEntry(t *testing.T) {
 		var (
 			Expect = NewWithT(t).Expect
 
-			i  = &mocks2.IssuesService{}
-			tk = &mocks.Toolkit{}
+			i  = &services.MockIssuesService{}
+			tk = &toolkit.MockToolkit{}
 		)
 
 		it.Before(func() {
@@ -48,7 +48,7 @@ func TestRequestYankEntry(t *testing.T) {
 			tk.On("GetInput", "version").Return("test-version", true)
 			tk.On("GetInput", "address").Return("test-address", true)
 
-			b, err := toml.Marshal(registry.IndexRequest{
+			b, err := toml.Marshal(index.Request{
 				ID:      "test-namespace/test-name",
 				Version: "test-version",
 				Address: "test-address",
@@ -67,7 +67,7 @@ func TestRequestYankEntry(t *testing.T) {
 
 		it("yank entry succeeds", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(registry.SuccessLabel)}},
+				Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}},
 			}, nil, nil)
 
 			timeout := time.NewTimer(1 * time.Second)
@@ -80,7 +80,7 @@ func TestRequestYankEntry(t *testing.T) {
 
 		it("yank entry fails", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(registry.FailureLabel)}},
+				Labels: []*github.Label{{Name: github.String(index.RequestFailureLabel)}},
 			}, nil, nil)
 
 			timeout := time.NewTimer(1 * time.Second)

@@ -14,35 +14,7 @@
  * limitations under the License.
  */
 
-package registry
-
-const Version = "v1"
-
-var RestrictedNamespaces = []string{
-	"buildpack",
-	"buildpack-io",
-	"buildpack.io",
-	"buildpackio",
-	"buildpacks",
-	"buildpacks-io",
-	"buildpacks.io",
-	"buildpacksio",
-	"cnb",
-	"cnbs",
-	"cncf",
-	"cncf-cnb",
-	"cncf-cnbs",
-	"example",
-	"examples",
-	"official",
-	"pack",
-	"sample",
-	"samples",
-}
-
-type Namespace struct {
-	Owners []Owner
-}
+package namespace
 
 const (
 	OrganizationType = "github_org"

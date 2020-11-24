@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/buildpacks/github-actions/buildpack/compute-metadata"
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 func main() {

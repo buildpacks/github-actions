@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package main
+package index
 
-import (
-	"fmt"
-	"os"
-
-	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
-)
-
-func main() {
-	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+type Index struct {
+	Namespace string `json:"ns"`
+	Name      string
+	Version   string
+	Yanked    bool
+	Address   string `json:"addr"`
 }

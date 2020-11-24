@@ -28,10 +28,10 @@ import (
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/buildpacks/github-actions/registry"
-	mocks2 "github.com/buildpacks/github-actions/registry/mocks"
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	"github.com/buildpacks/github-actions/registry/internal/namespace"
+	"github.com/buildpacks/github-actions/registry/internal/services"
 	"github.com/buildpacks/github-actions/registry/verify-namespace-owner"
-	"github.com/buildpacks/github-actions/toolkit/mocks"
 )
 
 func TestVerifyNamespaceOwner(t *testing.T) {
@@ -40,10 +40,10 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			Expect           = NewWithT(t).Expect
 			ExpectWithOffset = NewWithT(t).ExpectWithOffset
 
-			o     = &mocks2.OrganizationsService{}
-			r     = &mocks2.RepositoriesService{}
+			o     = &services.MockOrganizationsService{}
+			r     = &services.MockRepositoriesService{}
 			rOpts *github.RepositoryContentGetOptions
-			tk    = &mocks.Toolkit{}
+			tk    = &toolkit.MockToolkit{}
 		)
 
 		asJSONString := func(v interface{}) string {
@@ -78,7 +78,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it("succeeds if add-if-missing is true", func() {
 				tk.On("GetInput", "add-if-missing").Return("true", true)
 
-				c := asJSONString(registry.Namespace{Owners: []registry.Owner{{ID: 1, Type: registry.UserType}}})
+				c := asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})
 
 				r.On("CreateFile", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), &github.RepositoryContentFileOptions{
 					Author: &github.CommitAuthor{
@@ -105,7 +105,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it("fails if user does not own", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(registry.Namespace{Owners: []registry.Owner{{ID: 2, Type: registry.UserType}}})),
+						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 2, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r)).
@@ -115,7 +115,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it("succeeds if user does own", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(registry.Namespace{Owners: []registry.Owner{{ID: 1, Type: registry.UserType}}})),
+						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r)).To(Succeed())
@@ -127,7 +127,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it.Before(func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(registry.Namespace{Owners: []registry.Owner{{ID: 1, Type: registry.OrganizationType}}})),
+						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.OrganizationType}}})),
 					}, nil, nil, nil)
 			})
 

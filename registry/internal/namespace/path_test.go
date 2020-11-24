@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package main
+package namespace_test
 
 import (
-	"fmt"
-	"os"
+	"path/filepath"
+	"testing"
 
-	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
+	. "github.com/onsi/gomega"
+	"github.com/sclevine/spec"
+
+	"github.com/buildpacks/github-actions/registry/internal/namespace"
 )
 
-func main() {
-	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func TestPath(t *testing.T) {
+	spec.Run(t, "path", func(t *testing.T, context spec.G, it spec.S) {
+		var (
+			Expect = NewWithT(t).Expect
+		)
+
+		it("returns namespace path", func() {
+			Expect(namespace.Path("test-namespace")).To(Equal(filepath.Join("v1", "test-namespace.json")))
+		})
+	})
 }

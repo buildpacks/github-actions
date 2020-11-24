@@ -26,7 +26,7 @@ import (
 	"sync"
 )
 
-//go:generate mockery --name Toolkit --case=underscore
+//go:generate mockery --all  --inpackage --case=underscore
 
 type Toolkit interface {
 	AddPath(paths ...string) error

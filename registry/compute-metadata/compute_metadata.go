@@ -24,8 +24,9 @@ import (
 	"github.com/google/go-github/v32/github"
 	"github.com/pelletier/go-toml"
 
-	"github.com/buildpacks/github-actions/registry"
-	"github.com/buildpacks/github-actions/toolkit"
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	"github.com/buildpacks/github-actions/registry/internal/index"
+	"github.com/buildpacks/github-actions/registry/internal/namespace"
 )
 
 func ComputeMetadata(tk toolkit.Toolkit) error {
@@ -39,31 +40,31 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 		return toolkit.FailedErrorf("unable to unmarshal issue\n%w", err)
 	}
 
-	var request registry.IndexRequest
+	var request index.Request
 	if err := toml.Unmarshal([]byte(strings.ReplaceAll(*issue.Body, "```", "")), &request); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal body\n%w", err)
 	}
 
 	var (
-		namespace string
-		name      string
+		ns   string
+		name string
 	)
-	if g := registry.ValidId.FindStringSubmatch(request.ID); g == nil {
+	if g := index.ValidRequestId.FindStringSubmatch(request.ID); g == nil {
 		return toolkit.FailedErrorf("invalid id %s", request.ID)
 	} else {
-		namespace = g[1]
+		ns = g[1]
 		name = g[2]
 	}
 
-	if contains(registry.RestrictedNamespaces, namespace) {
-		return toolkit.FailedErrorf("restricted namespace %s", namespace)
+	if namespace.IsRestricted(ns) {
+		return toolkit.FailedErrorf("restricted namespace %s", ns)
 	}
 
-	if !registry.ValidVersion.MatchString(request.Version) {
+	if !index.ValidRequestVersion.MatchString(request.Version) {
 		return toolkit.FailedErrorf("invalid version %s", request.Version)
 	}
 
-	if !registry.ValidAddress.MatchString(request.Address) {
+	if !index.ValidRequestAddress.MatchString(request.Address) {
 		return toolkit.FailedErrorf("invalid address %s", request.Address)
 	}
 
@@ -73,23 +74,13 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
   Address:   %s
   Namespace: %s
   Name:      %s
-`, request.ID, request.Version, request.Address, namespace, name)
+`, request.ID, request.Version, request.Address, ns, name)
 
 	tk.SetOutput("id", request.ID)
 	tk.SetOutput("version", request.Version)
 	tk.SetOutput("address", request.Address)
-	tk.SetOutput("namespace", namespace)
+	tk.SetOutput("namespace", ns)
 	tk.SetOutput("name", name)
 
 	return nil
-}
-
-func contains(candidates []string, s string) bool {
-	for _, c := range candidates {
-		if s == c {
-			return true
-		}
-	}
-
-	return false
 }

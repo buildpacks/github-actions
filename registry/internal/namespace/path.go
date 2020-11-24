@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package main
+package namespace
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
+	"path/filepath"
 )
 
-func main() {
-	if err := metadata.ComputeMetadata(&toolkit.DefaultToolkit{}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+const version = "v1"
+
+func Path(namespace string) string {
+	return filepath.Join(version, fmt.Sprintf("%s.json", namespace))
 }

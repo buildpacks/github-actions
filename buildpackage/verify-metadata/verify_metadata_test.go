@@ -26,9 +26,9 @@ import (
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
 
-	metadata "github.com/buildpacks/github-actions/buildpackage/verify-metadata"
-	mocks2 "github.com/buildpacks/github-actions/buildpackage/verify-metadata/mocks"
-	"github.com/buildpacks/github-actions/toolkit/mocks"
+	"github.com/buildpacks/github-actions/buildpackage/verify-metadata"
+	"github.com/buildpacks/github-actions/buildpackage/verify-metadata/internal/mocks"
+	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 func TestVerifyMetadata(t *testing.T) {
@@ -36,10 +36,10 @@ func TestVerifyMetadata(t *testing.T) {
 		var (
 			Expect = NewWithT(t).Expect
 
-			f = &mocks2.ImageFunction{}
+			f = &mocks.ImageFunction{}
 			i = &fake.FakeImage{}
 
-			tk = &mocks.Toolkit{}
+			tk = &toolkit.MockToolkit{}
 		)
 
 		it.Before(func() {

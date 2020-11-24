@@ -25,8 +25,8 @@ import (
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
 
+	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/request-yank-entry"
-	"github.com/buildpacks/github-actions/toolkit"
 )
 
 func main() {
