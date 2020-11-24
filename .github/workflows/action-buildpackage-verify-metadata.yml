@@ -3,11 +3,14 @@ name: Action buildpackage-verify-metadata
   pull_request:
     paths:
     - buildpackage/verify-metadata/**
+    - internal/**
   push:
     branches:
     - main
+    - test
     paths:
     - buildpackage/verify-metadata/**
+    - internal/**
   release:
     types:
     - published

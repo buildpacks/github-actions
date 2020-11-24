@@ -3,11 +3,14 @@ name: Action buildpack-compute-metadata
   pull_request:
     paths:
     - buildpack/compute-metadata/**
+    - internal/**
   push:
     branches:
     - main
+    - test
     paths:
     - buildpack/compute-metadata/**
+    - internal/**
   release:
     types:
     - published

@@ -63,7 +63,6 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 		context("unknown namespace", func() {
 			it.Before(func() {
-
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(nil, nil, nil, &github.ErrorResponse{Response: &http.Response{StatusCode: http.StatusNotFound}})
 			})

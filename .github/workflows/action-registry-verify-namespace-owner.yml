@@ -2,13 +2,16 @@ name: Action registry-verify-namespace-owner
 "on":
   pull_request:
     paths:
-    - registry/*
+    - internal/**
+    - registry/internal/**
     - registry/verify-namespace-owner/**
   push:
     branches:
     - main
+    - test
     paths:
-    - registry/*
+    - internal/**
+    - registry/internal/**
     - registry/verify-namespace-owner/**
   release:
     types:

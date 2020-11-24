@@ -22,8 +22,8 @@ const (
 )
 
 type Owner struct {
-	ID   int64
-	Type string
+	ID   int64  `json:"id"`
+	Type string `json:"type"`
 }
 
 type OwnerPredicate func(Owner) bool

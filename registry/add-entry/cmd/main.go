@@ -14,12 +14,33 @@
  * limitations under the License.
  */
 
-package index
+package main
 
-type Index struct {
-	Namespace string `json:"ns"`
-	Name      string
-	Version   string
-	Yanked    bool
-	Address   string `json:"addr"`
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/google/go-github/v32/github"
+	"golang.org/x/oauth2"
+
+	"github.com/buildpacks/github-actions/internal/toolkit"
+	entry "github.com/buildpacks/github-actions/registry/add-entry"
+)
+
+func main() {
+	tk := &toolkit.DefaultToolkit{}
+
+	t, ok := tk.GetInput("token")
+	if !ok {
+		fmt.Println(toolkit.FailedError("token must be specified"))
+		os.Exit(1)
+	}
+
+	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
+
+	if err := entry.AddEntry(tk, gh.Repositories); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

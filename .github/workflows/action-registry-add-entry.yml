@@ -1,18 +1,18 @@
-name: Action registry-request-add-entry
+name: Action registry-add-entry
 "on":
   pull_request:
     paths:
     - internal/**
+    - registry/add-entry/**
     - registry/internal/**
-    - registry/request-add-entry/**
   push:
     branches:
     - main
     - test
     paths:
     - internal/**
+    - registry/add-entry/**
     - registry/internal/**
-    - registry/request-add-entry/**
   release:
     types:
     - published
@@ -73,6 +73,6 @@ jobs:
             fi
       env:
         PUSH:    ${{ github.event_name != 'pull_request' }}
-        SOURCE:  registry/request-add-entry/cmd
-        TARGET:  ghcr.io/buildpacks/actions/registry/request-add-entry
+        SOURCE:  registry/add-entry/cmd
+        TARGET:  ghcr.io/buildpacks/actions/registry/add-entry
         VERSION: ${{ steps.version.outputs.version }}

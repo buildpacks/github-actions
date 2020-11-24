@@ -9,6 +9,7 @@
   - [Buildpackage](#buildpackage)
     - [Verify Metadata Action](#verify-metadata-action)
   - [Registry](#registry)
+    - [Add Entry Action](#add-entry-action)
     - [Compute Metadata Action](#compute-metadata-action)
     - [Request Add Entry Action](#request-add-entry-action)
     - [Request Yank Entry Action](#request-yank-entry-action)
@@ -60,6 +61,32 @@ with:
 
 ## Registry
 [bri]: https://github.com/buildpacks/registry-index
+
+### Add Entry Action
+The `registry/add-entry` adds an entry to the [Buildpack Registry Index][bri].
+
+```yaml
+uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
+with:
+  token: ${{ secrets.BOT_TOKEN }}
+  owner: ${{ env.INDEX_OWNER }}
+  repository: ${{ env.INDEX_REPOSITORY }}
+  namespace: ${{ steps.metadata.outputs.namespace }}
+  name: ${{ steps.metadata.outputs.name }}
+  version: ${{ steps.metadata.outputs.version }}
+  address: ${{ steps.metadata.outputs.address }}
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `token` | A GitHub token with permissions to commit to the registry index repository.
+| `owner` | The owner name of the registry index repository.
+| `repository` | The repository name of the registry index repository.
+| `namespace` | The namespace of the buildpack to register.
+| `name` | The name of the buildpack to register.
+| `version` | The version of the buildpack to register.
+| `address` | The address of the buildpack to register.
 
 ### Compute Metadata Action
 The `registry/compute-metadata` action parses a [`buildpacks/registry-index`][bri] issue and exposes the contents as output parameters.

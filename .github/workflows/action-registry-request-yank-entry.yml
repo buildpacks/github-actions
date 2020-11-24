@@ -2,13 +2,16 @@ name: Action registry-request-yank-entry
 "on":
   pull_request:
     paths:
-    - registry/*
+    - internal/**
+    - registry/internal/**
     - registry/request-yank-entry/**
   push:
     branches:
     - main
+    - test
     paths:
-    - registry/*
+    - internal/**
+    - registry/internal/**
     - registry/request-yank-entry/**
   release:
     types:

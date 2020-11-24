@@ -14,40 +14,26 @@
  * limitations under the License.
  */
 
-package namespace
+package index
 
-var restrictedNamespaces = []string{
-	"buildpack",
-	"buildpack-io",
-	"buildpack.io",
-	"buildpackio",
-	"buildpacks",
-	"buildpacks-io",
-	"buildpacks.io",
-	"buildpacksio",
-	"cnb",
-	"cnbs",
-	"cncf",
-	"cncf-cnb",
-	"cncf-cnbs",
-	"example",
-	"examples",
-	"official",
-	"pack",
-	"sample",
-	"samples",
-}
+import (
+	"fmt"
+	"path/filepath"
+)
 
-type Namespace struct {
-	Owners []Owner `json:"owners"`
-}
+func Path(namespace string, name string) string {
+	var path string
 
-func IsRestricted(namespace string) bool {
-	for _, n := range restrictedNamespaces {
-		if n == namespace {
-			return true
-		}
+	switch len(name) {
+	case 1:
+		path = "1"
+	case 2:
+		path = "2"
+	case 3:
+		path = filepath.Join("3", name[0:2])
+	default:
+		path = filepath.Join(name[0:2], name[2:4])
 	}
 
-	return false
+	return filepath.Join(path, filepath.Join(fmt.Sprintf("%s_%s", namespace, name)))
 }

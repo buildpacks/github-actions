@@ -14,40 +14,12 @@
  * limitations under the License.
  */
 
-package namespace
+package index
 
-var restrictedNamespaces = []string{
-	"buildpack",
-	"buildpack-io",
-	"buildpack.io",
-	"buildpackio",
-	"buildpacks",
-	"buildpacks-io",
-	"buildpacks.io",
-	"buildpacksio",
-	"cnb",
-	"cnbs",
-	"cncf",
-	"cncf-cnb",
-	"cncf-cnbs",
-	"example",
-	"examples",
-	"official",
-	"pack",
-	"sample",
-	"samples",
-}
-
-type Namespace struct {
-	Owners []Owner `json:"owners"`
-}
-
-func IsRestricted(namespace string) bool {
-	for _, n := range restrictedNamespaces {
-		if n == namespace {
-			return true
-		}
-	}
-
-	return false
+type Entry struct {
+	Namespace string `json:"ns"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Yanked    bool   `json:"yanked"`
+	Address   string `json:"addr"`
 }

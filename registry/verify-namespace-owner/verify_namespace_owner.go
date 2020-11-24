@@ -75,7 +75,7 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 
 	s, err := content.GetContent()
 	if err != nil {
-		return toolkit.FailedError("unable to get namespace content")
+		return toolkit.FailedErrorf("unable to get namespace content\n%w", err)
 	}
 
 	var n namespace.Namespace
