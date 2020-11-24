@@ -19,43 +19,33 @@ package entry
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/google/go-github/v32/github"
 	"github.com/pelletier/go-toml"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
 	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func RequestAddEntry(tk toolkit.Toolkit, issues services.IssuesService, timeout *time.Timer, interval *time.Ticker) error {
-	id, ok := tk.GetInput("id")
-	if !ok {
-		return toolkit.FailedError("id must be set")
-	}
-
-	version, ok := tk.GetInput("version")
-	if !ok {
-		return toolkit.FailedError("version must be set")
-	}
-
-	address, ok := tk.GetInput("address")
-	if !ok {
-		return toolkit.FailedError("address must be set")
+func RequestAddEntry(tk toolkit.Toolkit, issues services.IssuesService, strategy retry.Strategy) error {
+	c, err := parseConfig(tk)
+	if err != nil {
+		return err
 	}
 
 	body, err := toml.Marshal(index.Request{
-		ID:      id,
-		Version: version,
-		Address: address,
+		ID:      c.ID,
+		Version: c.Version,
+		Address: c.Address,
 	})
 	if err != nil {
 		return toolkit.FailedErrorf("unable to marshal to TOML\n%w", err)
 	}
 
 	req := &github.IssueRequest{
-		Title: github.String(fmt.Sprintf("ADD %s@%s", id, version)),
+		Title: github.String(fmt.Sprintf("ADD %s@%s", c.ID, c.Version)),
 		Body:  github.String(fmt.Sprintf("```\n%s\n```", string(body))),
 	}
 
@@ -69,24 +59,52 @@ func RequestAddEntry(tk toolkit.Toolkit, issues services.IssuesService, timeout 
 
 	fmt.Printf("Created issue %s\n", url)
 
-	for {
-		select {
-		case <-timeout.C:
-			return toolkit.FailedError("timed out waiting for request to be processed")
-		case <-interval.C:
-			issue, _, err = issues.Get(context.Background(), "buildpacks", "registry-index", number)
-			if err != nil {
-				tk.Warningf("unable to get state for %s", url)
-			}
+	for a := retry.Start(strategy, nil); a.Next(); {
+		issue, _, err = issues.Get(context.Background(), "buildpacks", "registry-index", number)
+		if err != nil {
+			tk.Warningf("unable to get state for %s", url)
+			continue
+		}
 
-			for _, l := range issue.Labels {
-				if *l.Name == index.RequestFailureLabel {
-					return toolkit.FailedErrorf("Registry request %s failed", url)
-				} else if *l.Name == index.RequestSuccessLabel {
-					fmt.Printf("Registry request %s succeeded\n", url)
-					return nil
-				}
+		for _, l := range issue.Labels {
+			if *l.Name == index.RequestFailureLabel {
+				return toolkit.FailedErrorf("Registry request %s failed", url)
+			} else if *l.Name == index.RequestSuccessLabel {
+				fmt.Printf("Registry request %s succeeded\n", url)
+				return nil
 			}
 		}
 	}
+
+	return toolkit.FailedError("timed out waiting for request to be processed")
+}
+
+type config struct {
+	ID      string
+	Version string
+	Address string
+}
+
+func parseConfig(tk toolkit.Toolkit) (config, error) {
+	var (
+		c  config
+		ok bool
+	)
+
+	c.ID, ok = tk.GetInput("id")
+	if !ok {
+		return config{}, toolkit.FailedError("id must be set")
+	}
+
+	c.Version, ok = tk.GetInput("version")
+	if !ok {
+		return config{}, toolkit.FailedError("version must be set")
+	}
+
+	c.Address, ok = tk.GetInput("address")
+	if !ok {
+		return config{}, toolkit.FailedError("address must be set")
+	}
+
+	return c, nil
 }

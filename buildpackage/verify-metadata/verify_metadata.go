@@ -22,46 +22,30 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
-	v1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/google/go-containerregistry/pkg/v1/remote"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 )
 
 const MetadataLabel = "io.buildpacks.buildpackage.metadata"
 
-//go:generate mockery --all --output=./internal/mocks --case=underscore
-
-type ImageFunction func(name.Reference, ...remote.Option) (v1.Image, error)
-
 func VerifyMetadata(tk toolkit.Toolkit, imageFn ImageFunction) error {
-	id, ok := tk.GetInput("id")
-	if !ok {
-		return toolkit.FailedError("id must be specified")
-	}
-
-	version, ok := tk.GetInput("version")
-	if !ok {
-		return toolkit.FailedError("version must be specified")
-	}
-
-	address, ok := tk.GetInput("address")
-	if !ok {
-		return toolkit.FailedError("address must be specified")
-	}
-
-	ref, err := name.ParseReference(address)
+	c, err := parseConfig(tk)
 	if err != nil {
-		return toolkit.FailedErrorf("unable to parse address %s as image reference", address)
+		return err
+	}
+
+	ref, err := name.ParseReference(c.Address)
+	if err != nil {
+		return toolkit.FailedErrorf("unable to parse address %s as image reference", c.Address)
 	}
 
 	if _, ok := ref.(name.Digest); !ok {
-		return toolkit.FailedErrorf("address %s must be in digest form <host>/<repository>@sh256:<digest>", address)
+		return toolkit.FailedErrorf("address %s must be in digest form <host>/<repository>@sh256:<digest>", c.Address)
 	}
 
 	image, err := imageFn(ref)
 	if err != nil {
-		return toolkit.FailedErrorf("unable to retrieve image %s", address)
+		return toolkit.FailedErrorf("unable to retrieve image %s", c.Address)
 	}
 
 	configFile, err := image.ConfigFile()
@@ -79,12 +63,12 @@ func VerifyMetadata(tk toolkit.Toolkit, imageFn ImageFunction) error {
 		return toolkit.FailedErrorf("unable to unmarshal %s label", MetadataLabel)
 	}
 
-	if id != m.ID {
-		return toolkit.FailedErrorf("invalid id in buildpackage: expected %s, found %s", id, m.ID)
+	if c.ID != m.ID {
+		return toolkit.FailedErrorf("invalid id in buildpackage: expected %s, found %s", c.ID, m.ID)
 	}
 
-	if version != m.Version {
-		return toolkit.FailedErrorf("invalid version in buildpackage: expected %s, found %s", version, m.Version)
+	if c.Version != m.Version {
+		return toolkit.FailedErrorf("invalid version in buildpackage: expected %s, found %s", c.Version, m.Version)
 
 	}
 
@@ -98,9 +82,39 @@ func VerifyMetadata(tk toolkit.Toolkit, imageFn ImageFunction) error {
   Version:  %s
   Homepage: %s
   Stacks:   %s
-`, address, m.ID, m.Version, m.Homepage, strings.Join(stacks, ", "))
+`, c.Address, m.ID, m.Version, m.Homepage, strings.Join(stacks, ", "))
 
 	return nil
+}
+
+type config struct {
+	ID      string
+	Version string
+	Address string
+}
+
+func parseConfig(tk toolkit.Toolkit) (config, error) {
+	var (
+		c  config
+		ok bool
+	)
+
+	c.ID, ok = tk.GetInput("id")
+	if !ok {
+		return config{}, toolkit.FailedError("id must be specified")
+	}
+
+	c.Version, ok = tk.GetInput("version")
+	if !ok {
+		return config{}, toolkit.FailedError("version must be specified")
+	}
+
+	c.Address, ok = tk.GetInput("address")
+	if !ok {
+		return config{}, toolkit.FailedError("address must be specified")
+	}
+
+	return c, nil
 }
 
 type metadata struct {

@@ -27,19 +27,16 @@ import (
 )
 
 func ComputeMetadata(tk toolkit.Toolkit) error {
-	path := "buildpack.toml"
-	if s, ok := tk.GetInput("path"); ok {
-		path = s
-	}
+	c := parseConfig(tk)
 
-	c, err := ioutil.ReadFile(path)
+	b, err := ioutil.ReadFile(c.Path)
 	if err != nil {
-		return toolkit.FailedErrorf("unable to read %s", path)
+		return toolkit.FailedErrorf("unable to read %s", c.Path)
 	}
 
 	var bp libcnb.Buildpack
-	if err := toml.Unmarshal(c, &bp); err != nil {
-		return toolkit.FailedErrorf("unable to unmarshal %s", path)
+	if err := toml.Unmarshal(b, &bp); err != nil {
+		return toolkit.FailedErrorf("unable to unmarshal %s", c.Path)
 	}
 
 	fmt.Printf(`Metadata:
@@ -55,4 +52,18 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 	tk.SetOutput("homepage", bp.Info.Homepage)
 
 	return nil
+}
+
+type config struct {
+	Path string
+}
+
+func parseConfig(tk toolkit.Toolkit) config {
+	c := config{Path: "buildpack.toml"}
+
+	if s, ok := tk.GetInput("path"); ok {
+		c.Path = s
+	}
+
+	return c
 }

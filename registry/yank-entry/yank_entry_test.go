@@ -28,6 +28,7 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
@@ -43,6 +44,7 @@ func TestYankEntry(t *testing.T) {
 
 			r     = &services.MockRepositoriesService{}
 			rOpts *github.RepositoryContentGetOptions
+			s     = retry.LimitCount(2, retry.Regular{Min: 2})
 			tk    = &toolkit.MockToolkit{}
 		)
 
@@ -59,16 +61,17 @@ func TestYankEntry(t *testing.T) {
 			tk.On("GetInput", "namespace").Return("test-namespace", true)
 			tk.On("GetInput", "name").Return("test-name", true)
 			tk.On("GetInput", "version").Return("test-version", true)
+
 		})
 
 		context("index does not exist", func() {
 			it.Before(func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
-					Return(nil, nil, nil, &github.ErrorResponse{Response: &http.Response{StatusCode: http.StatusNotFound}})
+					Return(nil, nil, &github.Response{Response: &http.Response{StatusCode: http.StatusNotFound}}, nil)
 			})
 
 			it("fails if index does not exist", func() {
-				Expect(entry.YankEntry(tk, r)).
+				Expect(entry.YankEntry(tk, r, s)).
 					To(MatchError("::error ::index test-name does not exist"))
 			})
 		})
@@ -87,7 +90,7 @@ func TestYankEntry(t *testing.T) {
 						SHA: github.String("test-sha"),
 					}, nil, nil, nil)
 
-				Expect(entry.YankEntry(tk, r)).
+				Expect(entry.YankEntry(tk, r, s)).
 					To(MatchError("::error ::index test-name already does not have namespace test-namespace and version test-version"))
 			})
 
@@ -122,7 +125,7 @@ func TestYankEntry(t *testing.T) {
 				}).
 					Return(nil, nil, nil)
 
-				Expect(entry.YankEntry(tk, r)).To(Succeed())
+				Expect(entry.YankEntry(tk, r, s)).To(Succeed())
 			})
 
 		})

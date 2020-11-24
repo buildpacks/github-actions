@@ -24,6 +24,7 @@ import (
 
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/request-add-entry"
@@ -40,12 +41,14 @@ func main() {
 
 	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
 
-	timeout := time.NewTimer(5 * time.Minute)
-	defer timeout.Stop()
-	interval := time.NewTicker(30 * time.Second)
-	defer interval.Stop()
+	strategy := retry.LimitTime(2*time.Minute,
+		retry.Exponential{
+			Initial:  time.Second,
+			MaxDelay: 30 * time.Second,
+		},
+	)
 
-	if err := entry.RequestAddEntry(tk, gh.Issues, timeout, interval); err != nil {
+	if err := entry.RequestAddEntry(tk, gh.Issues, strategy); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

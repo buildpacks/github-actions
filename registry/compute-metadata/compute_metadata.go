@@ -30,13 +30,13 @@ import (
 )
 
 func ComputeMetadata(tk toolkit.Toolkit) error {
-	i, ok := tk.GetInput("issue")
-	if !ok {
-		return toolkit.FailedError("issue must be set")
+	c, err := parseConfig(tk)
+	if err != nil {
+		return err
 	}
 
 	var issue github.Issue
-	if err := json.Unmarshal([]byte(i), &issue); err != nil {
+	if err := json.Unmarshal([]byte(c.Issue), &issue); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal issue\n%w", err)
 	}
 
@@ -86,4 +86,22 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 	}
 
 	return nil
+}
+
+type config struct {
+	Issue string
+}
+
+func parseConfig(tk toolkit.Toolkit) (config, error) {
+	var (
+		c  config
+		ok bool
+	)
+
+	c.Issue, ok = tk.GetInput("issue")
+	if !ok {
+		return config{}, toolkit.FailedError("issue must be set")
+	}
+
+	return c, nil
 }

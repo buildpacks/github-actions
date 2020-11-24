@@ -22,82 +22,113 @@ import (
 	"net/http"
 
 	"github.com/google/go-github/v32/github"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
 	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func YankEntry(tk toolkit.Toolkit, repositories services.RepositoriesService) error {
-	owner, ok := tk.GetInput("owner")
-	if !ok {
-		return toolkit.FailedError("owner must be set")
-	}
-
-	repository, ok := tk.GetInput("repository")
-	if !ok {
-		return toolkit.FailedError("repository must be set")
-	}
-
-	namespace, ok := tk.GetInput("namespace")
-	if !ok {
-		return toolkit.FailedError("namespace must be set")
-	}
-
-	name, ok := tk.GetInput("name")
-	if !ok {
-		return toolkit.FailedError("name must be set")
-	}
-
-	version, ok := tk.GetInput("version")
-	if !ok {
-		return toolkit.FailedError("version must be set")
-	}
-
-	file := index.Path(namespace, name)
-	content, _, _, err := repositories.GetContents(context.Background(), owner, repository, file, nil)
-	if err2, ok := err.(*github.ErrorResponse); ok && err2.Response.StatusCode == http.StatusNotFound {
-		return toolkit.FailedErrorf("index %s does not exist", name)
-	} else if err != nil {
-		return toolkit.FailedErrorf("unable to read index %s\n%w", name, err)
-	}
-
-	s, err := content.GetContent()
+func YankEntry(tk toolkit.Toolkit, repositories services.RepositoriesService, strategy retry.Strategy) error {
+	c, err := parseConfig(tk)
 	if err != nil {
-		return toolkit.FailedErrorf("unable to get index content\n%w", err)
-	}
-
-	entries, err := index.UnmarshalEntries(s)
-	if err != nil {
-		return toolkit.FailedErrorf("unable to unmarshal entries\n%w", err)
-	}
-
-	i := indexOf(entries, namespace, version)
-	if i == nil {
-		return toolkit.FailedErrorf("index %s already does not have namespace %s and version %s", name, namespace, version)
-	}
-
-	entries[*i].Yanked = true
-
-	s, err = index.MarshalEntries(entries)
-	if err != nil {
-		return toolkit.FailedErrorf("unable to marshal entries\n%w", err)
-	}
-
-	if _, _, err := repositories.CreateFile(context.Background(), owner, repository, file, &github.RepositoryContentFileOptions{
-		Author: &github.CommitAuthor{
-			Name:  github.String("buildpacks-bot"),
-			Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
-		},
-		Message: github.String(fmt.Sprintf("YANK %s/%s@%s", namespace, name, version)),
-		SHA:     content.SHA,
-		Content: []byte(s),
-	}); err != nil {
 		return err
 	}
 
-	fmt.Printf("Yanked %s/%s@%s\n", namespace, name, version)
-	return nil
+	file := index.Path(c.Namespace, c.Name)
+
+	for a := retry.Start(strategy, nil); a.Next(); {
+		content, _, resp, err := repositories.GetContents(context.Background(), c.Owner, c.Repository, file, nil)
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			return toolkit.FailedErrorf("index %s does not exist", c.Name)
+		} else if err != nil {
+			return toolkit.FailedErrorf("unable to read index %s\n%w", c.Name, err)
+		}
+
+		s, err := content.GetContent()
+		if err != nil {
+			return toolkit.FailedErrorf("unable to get index content\n%w", err)
+		}
+
+		entries, err := index.UnmarshalEntries(s)
+		if err != nil {
+			return toolkit.FailedErrorf("unable to unmarshal entries\n%w", err)
+		}
+
+		i := indexOf(entries, c.Namespace, c.Version)
+		if i == nil {
+			return toolkit.FailedErrorf("index %s already does not have namespace %s and version %s", c.Name, c.Namespace, c.Version)
+		}
+
+		entries[*i].Yanked = true
+
+		s, err = index.MarshalEntries(entries)
+		if err != nil {
+			return toolkit.FailedErrorf("unable to marshal entries\n%w", err)
+		}
+
+		if _, resp, err := repositories.CreateFile(context.Background(), c.Owner, c.Repository, file, &github.RepositoryContentFileOptions{
+			Author: &github.CommitAuthor{
+				Name:  github.String("buildpacks-bot"),
+				Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+			},
+			Message: github.String(fmt.Sprintf("YANK %s/%s@%s", c.Namespace, c.Name, c.Version)),
+			SHA:     content.SHA,
+			Content: []byte(s),
+		}); resp != nil && resp.StatusCode == http.StatusConflict {
+			tk.Warning("retrying index update after conflict")
+			continue
+		} else if err != nil {
+			return toolkit.FailedErrorf("unable to create index\n%w", err)
+		}
+
+		fmt.Printf("Yanked %s/%s@%s\n", c.Namespace, c.Name, c.Version)
+		return nil
+	}
+
+	return toolkit.FailedError("timed out")
+}
+
+type config struct {
+	Owner      string
+	Repository string
+	Namespace  string
+	Name       string
+	Version    string
+}
+
+func parseConfig(tk toolkit.Toolkit) (config, error) {
+	var (
+		c  config
+		ok bool
+	)
+
+	c.Owner, ok = tk.GetInput("owner")
+	if !ok {
+		return config{}, toolkit.FailedError("owner must be set")
+	}
+
+	c.Repository, ok = tk.GetInput("repository")
+	if !ok {
+		return config{}, toolkit.FailedError("repository must be set")
+	}
+
+	c.Namespace, ok = tk.GetInput("namespace")
+	if !ok {
+		return config{}, toolkit.FailedError("namespace must be set")
+	}
+
+	c.Name, ok = tk.GetInput("name")
+	if !ok {
+		return config{}, toolkit.FailedError("name must be set")
+	}
+
+	c.Version, ok = tk.GetInput("version")
+	if !ok {
+		return config{}, toolkit.FailedError("version must be set")
+	}
+
+	return c, nil
 }
 
 func indexOf(entries []index.Entry, namespace string, version string) *int {

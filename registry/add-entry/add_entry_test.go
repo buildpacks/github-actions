@@ -28,6 +28,7 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	entry "github.com/buildpacks/github-actions/registry/add-entry"
@@ -43,6 +44,7 @@ func TestAddEntry(t *testing.T) {
 
 			r     = &services.MockRepositoriesService{}
 			rOpts *github.RepositoryContentGetOptions
+			s     = retry.LimitCount(2, retry.Regular{Min: 2})
 			tk    = &toolkit.MockToolkit{}
 		)
 
@@ -65,7 +67,7 @@ func TestAddEntry(t *testing.T) {
 		context("index does not exist", func() {
 			it.Before(func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
-					Return(nil, nil, nil, &github.ErrorResponse{Response: &http.Response{StatusCode: http.StatusNotFound}})
+					Return(nil, nil, &github.Response{Response: &http.Response{StatusCode: http.StatusNotFound}}, nil)
 			})
 
 			it("creates new index", func() {
@@ -84,7 +86,7 @@ func TestAddEntry(t *testing.T) {
 				}).
 					Return(nil, nil, nil)
 
-				Expect(entry.AddEntry(tk, r)).To(Succeed())
+				Expect(entry.AddEntry(tk, r, s)).To(Succeed())
 			})
 		})
 
@@ -102,7 +104,7 @@ func TestAddEntry(t *testing.T) {
 						SHA: github.String("test-sha"),
 					}, nil, nil, nil)
 
-				Expect(entry.AddEntry(tk, r)).
+				Expect(entry.AddEntry(tk, r, s)).
 					To(MatchError("::error ::index test-name already has namespace test-namespace and version test-version"))
 			})
 
@@ -142,7 +144,7 @@ func TestAddEntry(t *testing.T) {
 				}).
 					Return(nil, nil, nil)
 
-				Expect(entry.AddEntry(tk, r)).To(Succeed())
+				Expect(entry.AddEntry(tk, r, s)).To(Succeed())
 			})
 
 		})

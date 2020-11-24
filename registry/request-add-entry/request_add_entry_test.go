@@ -19,7 +19,6 @@ package entry_test
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/google/go-github/v32/github"
 	. "github.com/onsi/gomega"
@@ -27,6 +26,7 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
@@ -40,6 +40,7 @@ func TestRequestAddEntry(t *testing.T) {
 			Expect = NewWithT(t).Expect
 
 			i  = &services.MockIssuesService{}
+			s  = retry.LimitCount(2, retry.Regular{Min: 2})
 			tk = &toolkit.MockToolkit{}
 		)
 
@@ -69,12 +70,7 @@ func TestRequestAddEntry(t *testing.T) {
 				Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}},
 			}, nil, nil)
 
-			timeout := time.NewTimer(1 * time.Second)
-			defer timeout.Stop()
-			interval := time.NewTicker(1)
-			defer interval.Stop()
-
-			Expect(entry.RequestAddEntry(tk, i, timeout, interval)).To(Succeed())
+			Expect(entry.RequestAddEntry(tk, i, s)).To(Succeed())
 		})
 
 		it("add entry fails", func() {
@@ -82,12 +78,7 @@ func TestRequestAddEntry(t *testing.T) {
 				Labels: []*github.Label{{Name: github.String(index.RequestFailureLabel)}},
 			}, nil, nil)
 
-			timeout := time.NewTimer(1 * time.Second)
-			defer timeout.Stop()
-			interval := time.NewTicker(1)
-			defer interval.Stop()
-
-			Expect(entry.RequestAddEntry(tk, i, timeout, interval)).
+			Expect(entry.RequestAddEntry(tk, i, s)).
 				To(MatchError("::error ::Registry request test-html-url failed"))
 		})
 

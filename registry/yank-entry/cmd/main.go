@@ -20,9 +20,11 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	entry "github.com/buildpacks/github-actions/registry/yank-entry"
@@ -39,7 +41,14 @@ func main() {
 
 	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
 
-	if err := entry.YankEntry(tk, gh.Repositories); err != nil {
+	strategy := retry.LimitTime(2*time.Minute,
+		retry.Exponential{
+			Initial: time.Second,
+			Jitter:  true,
+		},
+	)
+
+	if err := entry.YankEntry(tk, gh.Repositories, strategy); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

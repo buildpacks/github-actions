@@ -27,6 +27,7 @@ import (
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/namespace"
@@ -43,6 +44,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			o     = &services.MockOrganizationsService{}
 			r     = &services.MockRepositoriesService{}
 			rOpts *github.RepositoryContentGetOptions
+			s     = retry.LimitCount(2, retry.Regular{Min: 2})
 			tk    = &toolkit.MockToolkit{}
 		)
 
@@ -64,18 +66,24 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 		context("unknown namespace", func() {
 			it.Before(func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
-					Return(nil, nil, nil, &github.ErrorResponse{Response: &http.Response{StatusCode: http.StatusNotFound}})
+					Return(nil, nil, &github.Response{Response: &http.Response{StatusCode: http.StatusNotFound}}, nil).
+					Once()
 			})
 
 			it("fails if add-if-missing is false", func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::invalid namespace test-namespace"))
 			})
 
 			it("succeeds if add-if-missing is true", func() {
 				tk.On("GetInput", "add-if-missing").Return("true", true)
+
+				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
+					Return(&github.RepositoryContent{
+						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
+					}, nil, nil, nil)
 
 				c := asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})
 
@@ -90,13 +98,14 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 					Content: &github.RepositoryContent{Content: github.String(c)},
 				}, nil, nil)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).To(Succeed())
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
 			})
 		})
 
 		context("user-owned namespace", func() {
 
 			it.Before(func() {
+				tk.On("GetInput", "add-if-missing").Return("", false)
 				o.On("List", mock.Anything, "test-user", mock.Anything).
 					Return([]*github.Organization{}, &github.Response{}, nil)
 			})
@@ -107,7 +116,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 2, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::test-user is not an owner of test-namespace"))
 			})
 
@@ -117,13 +126,14 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).To(Succeed())
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
 			})
 		})
 
 		context("organization-owned namespace", func() {
 
 			it.Before(func() {
+				tk.On("GetInput", "add-if-missing").Return("", false)
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
 						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.OrganizationType}}})),
@@ -134,7 +144,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 				o.On("List", mock.Anything, "test-user", mock.Anything).
 					Return([]*github.Organization{}, &github.Response{}, nil)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::test-user is not an owner of test-namespace"))
 			})
 
@@ -142,7 +152,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 				o.On("List", mock.Anything, "test-user", mock.Anything).
 					Return([]*github.Organization{{ID: github.Int64(1)}}, &github.Response{}, nil)
 
-				Expect(owner.VerifyNamespaceOwner(tk, o, r)).To(Succeed())
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
 			})
 
 		})

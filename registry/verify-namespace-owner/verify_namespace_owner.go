@@ -24,67 +24,31 @@ import (
 	"strconv"
 
 	"github.com/google/go-github/v32/github"
+	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/namespace"
 	"github.com/buildpacks/github-actions/registry/internal/services"
 )
 
-func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.OrganizationsService, repositories services.RepositoriesService) error {
-	u, ok := tk.GetInput("user")
-	if !ok {
-		return toolkit.FailedError("user must be set")
+func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.OrganizationsService, repositories services.RepositoriesService, strategy retry.Strategy) error {
+	c, err := parseConfig(tk)
+	if err != nil {
+		return err
 	}
 
 	var user github.User
-	if err := json.Unmarshal([]byte(u), &user); err != nil {
+	if err := json.Unmarshal([]byte(c.User), &user); err != nil {
 		return toolkit.FailedErrorf("unable to unmarshal user\n%w", err)
 	}
 
-	owner, ok := tk.GetInput("owner")
-	if !ok {
-		return toolkit.FailedError("owner must be set")
-	}
-
-	repository, ok := tk.GetInput("repository")
-	if !ok {
-		return toolkit.FailedError("repository must be set")
-	}
-
-	ns, ok := tk.GetInput("namespace")
-	if !ok {
-		return toolkit.FailedError("namespace must be set")
-	}
-
-	file := namespace.Path(ns)
-	content, _, _, err := repositories.GetContents(context.Background(), owner, repository, file, nil)
-	if err2, ok := err.(*github.ErrorResponse); ok && err2.Response.StatusCode == http.StatusNotFound {
-		if !resolveBool("add-if-missing", tk) {
-			return toolkit.FailedErrorf("invalid namespace %s", ns)
-		}
-
-		message := fmt.Sprintf("New Namespace: %s", ns)
-		if content, err = addNamespace(user, repositories, owner, repository, file, message); err != nil {
-			return toolkit.FailedErrorf("unable to add namespace %s\n%w", ns, err)
-		}
-
-		fmt.Println(message)
-	} else if err != nil {
-		return toolkit.FailedErrorf("unable to read namespace %s\n%w", ns, err)
-	}
-
-	s, err := content.GetContent()
+	n, err := getNamespace(tk, c, user, repositories, strategy)
 	if err != nil {
-		return toolkit.FailedErrorf("unable to get namespace content\n%w", err)
-	}
-
-	var n namespace.Namespace
-	if err := json.Unmarshal([]byte(s), &n); err != nil {
-		return toolkit.FailedErrorf("unable to unmarshal owners\n%w", err)
+		return err
 	}
 
 	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
-		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, ns)
+		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, c.Namespace)
 		return nil
 	}
 
@@ -94,35 +58,105 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 	}
 
 	if namespace.IsOwner(n.Owners, namespace.ByOrganizations(ids)) {
-		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, ns)
+		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, c.Namespace)
 		return nil
 	}
 
-	return toolkit.FailedErrorf("%s is not an owner of %s", *user.Login, ns)
+	return toolkit.FailedErrorf("%s is not an owner of %s", *user.Login, c.Namespace)
 }
 
-func addNamespace(user github.User, repositories services.RepositoriesService, owner string, repository string, path string, message string) (*github.RepositoryContent, error) {
-	b, err := json.Marshal(namespace.Namespace{Owners: []namespace.Owner{{ID: *user.ID, Type: namespace.UserType}}})
-	if err != nil {
-		return nil, err
+type config struct {
+	User         string
+	Owner        string
+	Repository   string
+	Namespace    string
+	AddIfMissing bool
+}
+
+func parseConfig(tk toolkit.Toolkit) (config, error) {
+	var (
+		c  = config{AddIfMissing: false}
+		ok bool
+	)
+
+	c.User, ok = tk.GetInput("user")
+	if !ok {
+		return config{}, toolkit.FailedError("user must be set")
 	}
 
-	createFile, _, err := repositories.CreateFile(context.Background(), owner, repository, path, &github.RepositoryContentFileOptions{
-		Author: &github.CommitAuthor{
-			Name:  github.String("buildpacks-bot"),
-			Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
-		},
-		Message: github.String(message),
-		Content: b,
-	})
-	if err != nil {
-		return nil, err
+	c.Owner, ok = tk.GetInput("owner")
+	if !ok {
+		return config{}, toolkit.FailedError("owner must be set")
 	}
 
-	return &github.RepositoryContent{
-		Content: github.String(string(b)),
-		SHA:     createFile.SHA,
-	}, nil
+	c.Repository, ok = tk.GetInput("repository")
+	if !ok {
+		return config{}, toolkit.FailedError("repository must be set")
+	}
+
+	c.Namespace, ok = tk.GetInput("namespace")
+	if !ok {
+		return config{}, toolkit.FailedError("namespace must be set")
+	}
+
+	if s, ok := tk.GetInput("add-if-missing"); ok {
+		if t, err := strconv.ParseBool(s); err == nil {
+			c.AddIfMissing = t
+		}
+	}
+
+	return c, nil
+}
+
+func getNamespace(tk toolkit.Toolkit, c config, user github.User, repositories services.RepositoriesService, strategy retry.Strategy) (namespace.Namespace, error) {
+	file := namespace.Path(c.Namespace)
+
+	for a := retry.Start(strategy, nil); a.Next(); {
+		content, _, resp, err := repositories.GetContents(context.Background(), c.Owner, c.Repository, file, nil)
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			if !c.AddIfMissing {
+				return namespace.Namespace{}, toolkit.FailedErrorf("invalid namespace %s", c.Namespace)
+			}
+
+			b, err := json.Marshal(namespace.Namespace{Owners: []namespace.Owner{{ID: *user.ID, Type: namespace.UserType}}})
+			if err != nil {
+				return namespace.Namespace{}, toolkit.FailedErrorf("unable to decode namespace\n%w", err)
+			}
+
+			if _, resp, err := repositories.CreateFile(context.Background(), c.Owner, c.Repository, file, &github.RepositoryContentFileOptions{
+				Author: &github.CommitAuthor{
+					Name:  github.String("buildpacks-bot"),
+					Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+				},
+				Message: github.String(fmt.Sprintf("New Namespace: %s", c.Namespace)),
+				Content: b,
+			}); resp != nil && resp.StatusCode == http.StatusConflict {
+				tk.Warning("retrying namespace update after conflict")
+				continue
+			} else if err != nil {
+				return namespace.Namespace{}, toolkit.FailedErrorf("unable to create namespace\n%w", err)
+			}
+
+			fmt.Printf("New Namespace: %s\n", c.Namespace)
+			continue
+		} else if err != nil {
+			return namespace.Namespace{}, toolkit.FailedErrorf("unable to read namespace %s\n%w", c.Namespace, err)
+		}
+
+		s, err := content.GetContent()
+		if err != nil {
+			return namespace.Namespace{}, toolkit.FailedErrorf("unable to get namespace content\n%w", err)
+		}
+
+		var n namespace.Namespace
+		if err := json.Unmarshal([]byte(s), &n); err != nil {
+			return namespace.Namespace{}, toolkit.FailedErrorf("unable to unmarshal owners\n%w", err)
+		}
+
+		return n, nil
+	}
+
+	return namespace.Namespace{}, toolkit.FailedError("timed out")
 }
 
 func listOrganizations(user string, organizations services.OrganizationsService) ([]int64, error) {
@@ -147,14 +181,4 @@ func listOrganizations(user string, organizations services.OrganizationsService)
 	}
 
 	return ids, nil
-}
-
-func resolveBool(name string, tk toolkit.Toolkit) bool {
-	s, _ := tk.GetInput(name)
-	t, err := strconv.ParseBool(s)
-	if err != nil {
-		return false
-	}
-
-	return t
 }

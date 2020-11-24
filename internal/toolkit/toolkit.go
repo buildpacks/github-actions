@@ -98,12 +98,12 @@ func (d *DefaultToolkit) AddPath(paths ...string) error {
 
 	path, ok := d.Environment["GITHUB_PATH"]
 	if !ok {
-		return fmt.Errorf("$GITHUB_PATH must be set")
+		return FailedError("$GITHUB_PATH must be set")
 	}
 
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open %s\n%w", path, err)
+		return FailedErrorf("unable to open %s\n%w", path, err)
 	}
 	defer f.Close()
 
@@ -119,18 +119,18 @@ func (d *DefaultToolkit) ExportVariable(name string, value string) error {
 
 	path, ok := d.Environment["GITHUB_ENV"]
 	if !ok {
-		return fmt.Errorf("$GITHUB_ENV must be set")
+		return FailedError("$GITHUB_ENV must be set")
 	}
 
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open %s\n%w", path, err)
+		return FailedErrorf("unable to open %s\n%w", path, err)
 	}
 	defer f.Close()
 
 	if strings.ContainsRune(value, '\n') {
 		if _, err := fmt.Fprintln(f, fmt.Sprintf("%s<<EOF\n%s\nEOF", name, value)); err != nil {
-			return fmt.Errorf("unable to write variable")
+			return FailedError("unable to write variable")
 		}
 	} else {
 		_, _ = fmt.Fprintln(f, fmt.Sprintf("%s=%s", name, value))
