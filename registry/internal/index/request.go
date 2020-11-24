@@ -20,11 +20,6 @@ import (
 	"regexp"
 )
 
-const (
-	RequestFailureLabel = "failure"
-	RequestSuccessLabel = "succeeded"
-)
-
 var (
 	ValidRequestId      = regexp.MustCompile(`^([a-zA-Z0-9.-]+)/([a-zA-Z0-9./-]+)$`)
 	ValidRequestVersion = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`)

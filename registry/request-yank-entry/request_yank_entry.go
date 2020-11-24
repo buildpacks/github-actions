@@ -58,25 +58,7 @@ func RequestYankEntry(tk toolkit.Toolkit, issues services.IssuesService, strateg
 	number := *issue.Number
 
 	fmt.Printf("Created issue %s\n", url)
-
-	for a := retry.Start(strategy, nil); a.Next(); {
-		issue, _, err = issues.Get(context.Background(), "buildpacks", "registry-index", number)
-		if err != nil {
-			tk.Warningf("unable to get state for %s", url)
-			continue
-		}
-
-		for _, l := range issue.Labels {
-			if *l.Name == index.RequestFailureLabel {
-				return toolkit.FailedErrorf("Registry request %s failed", url)
-			} else if *l.Name == index.RequestSuccessLabel {
-				fmt.Printf("Registry request %s succeeded\n", url)
-				return nil
-			}
-		}
-	}
-
-	return toolkit.FailedError("timed out waiting for request to be processed")
+	return index.WaitForCompletion(number, url, tk, issues, strategy)
 }
 
 type config struct {
