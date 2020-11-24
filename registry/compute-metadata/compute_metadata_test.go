@@ -86,7 +86,7 @@ func TestComputeMetadata(t *testing.T) {
 			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid version test-version"))
 		})
 
-		it("returns error when address is invalid", func() {
+		it("returns error when yank is false and address is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
 				Body: github.String(asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
@@ -98,7 +98,7 @@ func TestComputeMetadata(t *testing.T) {
 			Expect(metadata.ComputeMetadata(tk)).To(MatchError("::error ::invalid address host.com:443/repository/image:tag"))
 		})
 
-		it("computes metadata", func() {
+		it("computes metadata when yank is false", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
 				Body: github.String(asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
@@ -109,6 +109,22 @@ func TestComputeMetadata(t *testing.T) {
 			tk.On("SetOutput", "id", "test-namespace/test-name")
 			tk.On("SetOutput", "version", "0.0.0")
 			tk.On("SetOutput", "address", "host.com:443/repository/image@sha256:133f2117e15569ca59645eddad78f4a6a675c435f9614e4b137364274f3a7614")
+			tk.On("SetOutput", "namespace", "test-namespace")
+			tk.On("SetOutput", "name", "test-name")
+
+			Expect(metadata.ComputeMetadata(tk)).To(Succeed())
+		})
+
+		it("computes metadata when yank is true", func() {
+			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
+				Body: github.String(asTOMLString(index.Request{
+					ID:      "test-namespace/test-name",
+					Version: "0.0.0",
+					Yank:    true,
+				})),
+			}), true)
+			tk.On("SetOutput", "id", "test-namespace/test-name")
+			tk.On("SetOutput", "version", "0.0.0")
 			tk.On("SetOutput", "namespace", "test-namespace")
 			tk.On("SetOutput", "name", "test-name")
 

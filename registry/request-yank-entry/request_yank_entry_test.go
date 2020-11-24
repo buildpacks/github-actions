@@ -46,12 +46,10 @@ func TestRequestYankEntry(t *testing.T) {
 		it.Before(func() {
 			tk.On("GetInput", "id").Return("test-namespace/test-name", true)
 			tk.On("GetInput", "version").Return("test-version", true)
-			tk.On("GetInput", "address").Return("test-address", true)
 
 			b, err := toml.Marshal(index.Request{
 				ID:      "test-namespace/test-name",
 				Version: "test-version",
-				Address: "test-address",
 				Yank:    true,
 			})
 			Expect(err).NotTo(HaveOccurred())

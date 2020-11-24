@@ -40,15 +40,9 @@ func RequestYankEntry(tk toolkit.Toolkit, issues services.IssuesService, timeout
 		return toolkit.FailedError("version must be set")
 	}
 
-	address, ok := tk.GetInput("address")
-	if !ok {
-		return toolkit.FailedError("address must be set")
-	}
-
 	body, err := toml.Marshal(index.Request{
 		ID:      id,
 		Version: version,
-		Address: address,
 		Yank:    true,
 	})
 	if err != nil {

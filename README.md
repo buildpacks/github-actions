@@ -149,7 +149,6 @@ with:
 | `token` | A GitHub token with `public_repo` scope to open an issue against [`buildpacks/registry-index`][bri].
 | `id` | A buildpack id that your user is allowed to manage.  This is must be in `{namespace}/{name}` format.
 | `version` | The version of the buildpack that is being added to the registry.
-| `yank` | `true` if this version should be yanked.
 
 ### Verify Namespace Owner Action
 The `registry/verify-namespace-owner` action verifies that a user is an owner of a namespace in the [Buildpack Registry Index][bri].

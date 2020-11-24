@@ -64,7 +64,7 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 		return toolkit.FailedErrorf("invalid version %s", request.Version)
 	}
 
-	if !index.ValidRequestAddress.MatchString(request.Address) {
+	if !request.Yank && !index.ValidRequestAddress.MatchString(request.Address) {
 		return toolkit.FailedErrorf("invalid address %s", request.Address)
 	}
 
@@ -77,10 +77,13 @@ func ComputeMetadata(tk toolkit.Toolkit) error {
 `, request.ID, request.Version, request.Address, ns, name)
 
 	tk.SetOutput("id", request.ID)
-	tk.SetOutput("version", request.Version)
-	tk.SetOutput("address", request.Address)
 	tk.SetOutput("namespace", ns)
 	tk.SetOutput("name", name)
+	tk.SetOutput("version", request.Version)
+
+	if !request.Yank {
+		tk.SetOutput("address", request.Address)
+	}
 
 	return nil
 }
