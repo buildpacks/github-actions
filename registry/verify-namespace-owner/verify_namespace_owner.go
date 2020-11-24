@@ -119,7 +119,10 @@ func addNamespace(user github.User, repositories services.RepositoriesService, o
 		return nil, err
 	}
 
-	return createFile.Content, nil
+	return &github.RepositoryContent{
+		Content: github.String(string(b)),
+		SHA:     createFile.SHA,
+	}, nil
 }
 
 func listOrganizations(user string, organizations services.OrganizationsService) ([]int64, error) {
