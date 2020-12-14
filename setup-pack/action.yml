@@ -14,7 +14,7 @@ inputs:
   pack-version:
     description: 'The version of pack to install'
     required:    false
-    default:     '0.15.0'
+    default:     '0.15.1'
   yj-version:
     description: 'The version of yj to install'
     required:    false
