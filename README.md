@@ -5,12 +5,12 @@
 
 - [GitHub Actions](#github-actions)
   - [Buildpack](#buildpack)
-    - [Compute Mmetadata Action](#compute-mmetadata-action)
+    - [Compute Metadata Action](#compute-metadata-action)
   - [Buildpackage](#buildpackage)
     - [Verify Metadata Action](#verify-metadata-action)
   - [Registry](#registry)
     - [Add Entry Action](#add-entry-action)
-    - [Compute Metadata Action](#compute-metadata-action)
+    - [Compute Registry Metadata Action](#compute-registry-metadata-action)
     - [Request Add Entry Action](#request-add-entry-action)
     - [Request Yank Entry Action](#request-yank-entry-action)
     - [Verify Namespace Owner Action](#verify-namespace-owner-action)
@@ -20,7 +20,7 @@
 
 ## Buildpack
 
-### Compute Mmetadata Action
+### Compute Metadata Action
 The `buildpack/compute-metadata` action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
 
 ```yaml
@@ -89,11 +89,11 @@ with:
 | `version` | The version of the buildpack to register.
 | `address` | The address of the buildpack to register.
 
-### Compute Metadata Action
+### Compute Registry Metadata Action
 The `registry/compute-metadata` action parses a [`buildpacks/registry-index`][bri] issue and exposes the contents as output parameters.
 
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/registry/add-entry
+uses: docker://ghcr.io/buildpacks/actions/registry/compute-metadata
 with:
   issue:   ${{ toJSON(github.events.issue) }}
 ```
@@ -197,7 +197,6 @@ with:
 | `namespace` | The namespace of the buildpack to register.
 | `name` | The name of the buildpack to register.
 | `version` | The version of the buildpack to register.
-| `address` | The address of the buildpack to register.
 
 ## Setup pack CLI Action
 The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`][yj] to the environment.
