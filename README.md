@@ -24,7 +24,7 @@
 The `buildpack/compute-metadata` action parses a `buildpack.toml` and exposes the contents of the `[buildpack]` block as output parameters.
 
 ```yaml
-uses: docker://ghcr.io/buildpacks/actions/buildpack/compute-metadata
+docker://ghcr.io/buildpacks/actions/buildpack/compute-metadata
 ```
 
 #### Inputs <!-- omit in toc -->
@@ -207,7 +207,7 @@ The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`
 [yj]:    https://github.com/sclevine/yj
 
 ```yaml
-uses: buildpacks/github-actions/setup-pack
+uses: buildpacks/github-actions/setup-pack@4.1.0
 ```
 
 #### Inputs <!-- omit in toc -->
