@@ -207,7 +207,7 @@ The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`
 [yj]:    https://github.com/sclevine/yj
 
 ```yaml
-uses: buildpacks/github-actions/setup-pack
+uses: buildpacks/github-actions/setup-pack@v4.1.0
 ```
 
 #### Inputs <!-- omit in toc -->
