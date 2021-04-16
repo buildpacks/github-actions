@@ -1,4 +1,7 @@
 # GitHub Actions
+
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4748/badge)](https://bestpractices.coreinfrastructure.org/projects/4748)
+
 `github-actions` is a collection of end-user [GitHub Actions][gha] that integrate with Cloud Native Buildpacks projects.
 
 [gha]: https://docs.github.com/en/free-pro-team@latest/actions

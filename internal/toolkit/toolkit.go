@@ -33,6 +33,7 @@ type Toolkit interface {
 	ExportVariable(name string, value string) error
 
 	GetInput(name string) (string, bool)
+	GetInputList(name string) ([]string, bool)
 	SetOutput(name string, value string)
 	GetState(name string) (string, bool)
 	SetState(name string, value string)
@@ -143,6 +144,13 @@ func (d *DefaultToolkit) GetInput(name string) (string, bool) {
 	d.once.Do(d.init)
 	s, ok := d.Environment[fmt.Sprintf("INPUT_%s", strings.ToUpper(name))]
 	return s, ok
+}
+
+func (d *DefaultToolkit) GetInputList(name string) ([]string, bool) {
+	d.once.Do(d.init)
+	s, ok := d.Environment[fmt.Sprintf("INPUT_BLOCKED_NAMESPACES%s", strings.ToUpper(name))]
+	ss := strings.Split(s, ",")
+	return ss, ok
 }
 
 func (d *DefaultToolkit) SetOutput(name string, value string) {

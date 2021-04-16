@@ -24,7 +24,7 @@ jobs:
                 set -euo pipefail
 
                 GO111MODULE=on go get -u -ldflags="-s -w" github.com/paketo-buildpacks/pipeline-builder/cmd/octo
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v2.3.4
             - id: pipeline
               name: Update Pipeline
               run: |
@@ -62,7 +62,7 @@ jobs:
               env:
                 DESCRIPTOR: .github/pipeline-descriptor.yml
                 GITHUB_TOKEN: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
-            - uses: peter-evans/create-pull-request@v3
+            - uses: peter-evans/create-pull-request@v3.10.0
               with:
                 author: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }} <${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}@users.noreply.github.com>
                 body: |-

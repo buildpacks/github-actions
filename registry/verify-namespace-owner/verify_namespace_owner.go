@@ -66,11 +66,12 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 }
 
 type config struct {
-	User         string
-	Owner        string
-	Repository   string
-	Namespace    string
-	AddIfMissing bool
+	User              string
+	Owner             string
+	Repository        string
+	Namespace         string
+	AddIfMissing      bool
+	blockedNamespaces []string
 }
 
 func parseConfig(tk toolkit.Toolkit) (config, error) {
@@ -95,6 +96,11 @@ func parseConfig(tk toolkit.Toolkit) (config, error) {
 	}
 
 	c.Namespace, ok = tk.GetInput("namespace")
+	if !ok {
+		return config{}, toolkit.FailedError("namespace must be set")
+	}
+
+	c.blockedNamespaces, ok = tk.GetInputList("blocked_namespaces")
 	if !ok {
 		return config{}, toolkit.FailedError("namespace must be set")
 	}
