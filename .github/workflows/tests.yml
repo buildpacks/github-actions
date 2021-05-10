@@ -11,7 +11,7 @@ jobs:
             - ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/cache@v2.1.5
+            - uses: actions/cache@v2
               with:
                 key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
                 path: ${{ env.HOME }}/go/pkg/mod
