@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/buildpacks/libcnb v1.21.0
-	github.com/google/go-containerregistry v0.5.0
+	github.com/google/go-containerregistry v0.5.1
 	github.com/google/go-github/v32 v32.1.0
 	github.com/onsi/gomega v1.12.0
 	github.com/pelletier/go-toml v1.9.1
