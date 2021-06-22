@@ -148,7 +148,7 @@ func (d *DefaultToolkit) GetInput(name string) (string, bool) {
 
 func (d *DefaultToolkit) GetInputList(name string) ([]string, bool) {
 	d.once.Do(d.init)
-	s, ok := d.Environment[fmt.Sprintf("INPUT_BLOCKED_NAMESPACES%s", strings.ToUpper(name))]
+	s, ok := d.Environment[fmt.Sprintf("INPUT_%s", strings.ToUpper(name))]
 	ss := strings.Split(s, ",")
 	return ss, ok
 }
