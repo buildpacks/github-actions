@@ -47,6 +47,10 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 		return err
 	}
 
+	if isBlockedNamespaces(config{}) {
+		return toolkit.FailedErrorf("a blocked namespace encountered %s", c.Namespace)
+	}
+
 	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
 		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, c.Namespace)
 		return nil
@@ -188,4 +192,13 @@ func listOrganizations(user string, organizations services.OrganizationsService)
 	}
 
 	return ids, nil
+}
+
+func isBlockedNamespaces(c config) bool {
+	for _, name := range c.blockedNamespaces {
+		if c.Namespace == name {
+			return true
+		}
+	}
+	return false
 }
