@@ -102,7 +102,8 @@ func parseConfig(tk toolkit.Toolkit) (config, error) {
 
 	c.blockedNamespaces, ok = tk.GetInputList("blocked_namespaces")
 	if !ok {
-		return config{}, toolkit.FailedError("namespace must be set")
+		defaultBlockedNamespaces := []string{"cncf", "buildpacks", "cnb", "buildpacksio", "buildpack"}
+		c.blockedNamespaces = defaultBlockedNamespaces
 	}
 
 	if s, ok := tk.GetInput("add-if-missing"); ok {
