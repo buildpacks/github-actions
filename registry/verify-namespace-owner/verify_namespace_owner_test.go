@@ -32,7 +32,7 @@ import (
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/namespace"
 	"github.com/buildpacks/github-actions/registry/internal/services"
-	"github.com/buildpacks/github-actions/registry/verify-namespace-owner"
+	owner "github.com/buildpacks/github-actions/registry/verify-namespace-owner"
 )
 
 func TestVerifyNamespaceOwner(t *testing.T) {
@@ -72,13 +72,21 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it("fails if add-if-missing is false", func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
+				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
+					To(MatchError("::error ::invalid namespace test-namespace"))
+			})
 
+			it("fails if namespace is blocked", func() {
+				tk.On("GetInput", "add-if-missing").Return("", false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::invalid namespace test-namespace"))
 			})
 
 			it("succeeds if add-if-missing is true", func() {
 				tk.On("GetInput", "add-if-missing").Return("true", true)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"true"}, true)
 
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
@@ -106,6 +114,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it.Before(func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
 				o.On("List", mock.Anything, "test-user", mock.Anything).
 					Return([]*github.Organization{}, &github.Response{}, nil)
 			})
@@ -134,6 +143,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it.Before(func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{""}, false)
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
 						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.OrganizationType}}})),
