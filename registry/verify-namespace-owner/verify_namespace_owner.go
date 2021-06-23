@@ -47,6 +47,10 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 		return err
 	}
 
+	if isBlockedNamespaces(config{}) {
+		return toolkit.FailedErrorf("The namespace '%s' is restricted.", c.Namespace)
+	}
+
 	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
 		fmt.Printf("Verified %s is an owner of %s\n", *user.Login, c.Namespace)
 		return nil
@@ -66,11 +70,12 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 }
 
 type config struct {
-	User         string
-	Owner        string
-	Repository   string
-	Namespace    string
-	AddIfMissing bool
+	User              string
+	Owner             string
+	Repository        string
+	Namespace         string
+	AddIfMissing      bool
+	blockedNamespaces []string
 }
 
 func parseConfig(tk toolkit.Toolkit) (config, error) {
@@ -97,6 +102,12 @@ func parseConfig(tk toolkit.Toolkit) (config, error) {
 	c.Namespace, ok = tk.GetInput("namespace")
 	if !ok {
 		return config{}, toolkit.FailedError("namespace must be set")
+	}
+
+	c.blockedNamespaces, ok = tk.GetInputList("blocked_namespaces")
+	if !ok {
+		defaultBlockedNamespaces := []string{"cncf", "buildpacks", "cnb", "buildpacksio", "buildpack"}
+		c.blockedNamespaces = defaultBlockedNamespaces
 	}
 
 	if s, ok := tk.GetInput("add-if-missing"); ok {
@@ -181,4 +192,13 @@ func listOrganizations(user string, organizations services.OrganizationsService)
 	}
 
 	return ids, nil
+}
+
+func isBlockedNamespaces(c config) bool {
+	for _, name := range c.blockedNamespaces {
+		if c.Namespace == name {
+			return true
+		}
+	}
+	return false
 }

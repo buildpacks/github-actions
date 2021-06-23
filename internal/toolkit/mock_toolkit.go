@@ -109,6 +109,29 @@ func (_m *MockToolkit) GetInput(name string) (string, bool) {
 	return r0, r1
 }
 
+// GetInputList provides a mock function with given fields: name
+func (_m *MockToolkit) GetInputList(name string) ([]string, bool) {
+	ret := _m.Called(name)
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
+		r0 = rf(name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 bool
+	if rf, ok := ret.Get(1).(func(string) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
 // GetState provides a mock function with given fields: name
 func (_m *MockToolkit) GetState(name string) (string, bool) {
 	ret := _m.Called(name)

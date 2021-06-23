@@ -126,6 +126,17 @@ func TestToolkit(t *testing.T) {
 				Expect(ok).To(BeFalse())
 			})
 
+			it("gets input list", func() {
+				tk.Environment = map[string]string{"INPUT_BLOCKED_NAMESPACES_TEST-1": "test-value-1,test-value-2,test-value-3"}
+
+				s, ok := tk.GetInputList("blocked_namespaces_test-1")
+				Expect(ok).To(BeTrue())
+				Expect(s).To(Equal([]string{"test-value-1", "test-value-2", "test-value-3"}))
+
+				_, ok = tk.GetInputList("test-2")
+				Expect(ok).To(BeFalse())
+			})
+
 			it("sets output", func() {
 				tk.SetOutput("test-name", "test-value-1\ntest-value-2")
 
