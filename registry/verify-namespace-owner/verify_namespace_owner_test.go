@@ -72,14 +72,14 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it("fails if add-if-missing is false", func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
-				tk.On("GetInputList", "blocked_namespaces").Return([]string{""}, false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::invalid namespace test-namespace"))
 			})
 
 			it("fails if namespace is blocked", func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
-				tk.On("GetInputList", "blocked_namespaces").Return([]string{""}, false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
 					To(MatchError("::error ::invalid namespace test-namespace"))
 			})
@@ -114,7 +114,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it.Before(func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
-				tk.On("GetInputList", "blocked_namespaces").Return([]string{""}, false)
+				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
 				o.On("List", mock.Anything, "test-user", mock.Anything).
 					Return([]*github.Organization{}, &github.Response{}, nil)
 			})
