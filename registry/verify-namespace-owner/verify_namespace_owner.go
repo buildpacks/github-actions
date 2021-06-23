@@ -48,7 +48,7 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 	}
 
 	if isBlockedNamespaces(config{}) {
-		return toolkit.FailedErrorf("a blocked namespace encountered %s", c.Namespace)
+		return toolkit.FailedErrorf("The namespace '%s' is restricted.", c.Namespace)
 	}
 
 	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
