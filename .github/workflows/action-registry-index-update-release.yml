@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1.1.13
+        uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.DISTRIBUTION_GITHUB_TOKEN }}
           repository: buildpacks/registry-index
