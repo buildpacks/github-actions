@@ -10,15 +10,15 @@ jobs:
         runs-on:
             - ubuntu-latest
         steps:
-            - uses: actions/checkout@v2.3.4
-            - uses: actions/cache@v2.1.6
+            - uses: actions/checkout@v2
+            - uses: actions/cache@v2
               with:
                 key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
                 path: ${{ env.HOME }}/go/pkg/mod
                 restore-keys: ${{ runner.os }}-go-
             - uses: actions/setup-go@v2
               with:
-                go-version: "1.15"
+                go-version: "1.16"
             - name: Install richgo
               run: |
                 #!/usr/bin/env bash
@@ -37,7 +37,7 @@ jobs:
                   "https://github.com/kyoh86/richgo/releases/download/v${RICHGO_VERSION}/richgo_${RICHGO_VERSION}_linux_amd64.tar.gz" \
                 | tar -C "${HOME}"/bin -xz richgo
               env:
-                RICHGO_VERSION: 0.3.3
+                RICHGO_VERSION: 0.3.6
             - name: Run Tests
               run: |
                 #!/usr/bin/env bash
