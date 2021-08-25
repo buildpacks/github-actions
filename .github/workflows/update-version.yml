@@ -9,8 +9,8 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Update pack version of buildpacks/github-actions/setup-pack/action.yml on new pack release
-        uses: actions/checkout@v2
         run: |
             NEW_VERSION = $(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/buildpacks/pack/releases/latest | jq .tag_name -r | cut -c 2-)
             sed -i -z "s/default:     '[0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}'/default:     '$NEW_VERSION'/2" setup-pack/action.yml
