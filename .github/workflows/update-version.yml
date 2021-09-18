@@ -1,6 +1,7 @@
 name: update-pack-version
 
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - pack-release
