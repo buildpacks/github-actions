@@ -6,7 +6,7 @@ inputs:
   crane-version:
     description: 'The version of crane to install'
     required:    false
-    default:     '0.1.4'
+    default:     '0.6.0'
   jq-version:
     description: 'The version of jq to install'
     required:    false
