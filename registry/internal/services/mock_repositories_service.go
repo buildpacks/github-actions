@@ -5,7 +5,7 @@ package services
 import (
 	context "context"
 
-	github "github.com/google/go-github/v32/github"
+	github "github.com/google/go-github/v39/github"
 	mock "github.com/stretchr/testify/mock"
 )
 

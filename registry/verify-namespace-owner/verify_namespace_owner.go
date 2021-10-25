@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/v39/github"
 	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
