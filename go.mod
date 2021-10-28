@@ -3,7 +3,7 @@ module github.com/buildpacks/github-actions
 go 1.17
 
 require (
-	github.com/buildpacks/libcnb v1.21.0
+	github.com/buildpacks/libcnb v1.24.0
 	github.com/google/go-containerregistry v0.6.0
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.16.0
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v20.10.7+incompatible // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
