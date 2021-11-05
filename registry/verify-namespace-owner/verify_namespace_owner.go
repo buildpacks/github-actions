@@ -42,13 +42,13 @@ func VerifyNamespaceOwner(tk toolkit.Toolkit, organizations services.Organizatio
 		return toolkit.FailedErrorf("unable to unmarshal user\n%w", err)
 	}
 
+	if namespace.IsRestricted(c.Namespace) {
+		return toolkit.FailedErrorf("The namespace '%s' is restricted.", c.Namespace)
+	}
+
 	n, err := getNamespace(tk, c, user, repositories, strategy)
 	if err != nil {
 		return err
-	}
-
-	if isBlockedNamespaces(config{}) {
-		return toolkit.FailedErrorf("The namespace '%s' is restricted.", c.Namespace)
 	}
 
 	if namespace.IsOwner(n.Owners, namespace.ByUser(*user.ID)) {
@@ -75,7 +75,6 @@ type config struct {
 	Repository        string
 	Namespace         string
 	AddIfMissing      bool
-	blockedNamespaces []string
 }
 
 func parseConfig(tk toolkit.Toolkit) (config, error) {
@@ -102,12 +101,6 @@ func parseConfig(tk toolkit.Toolkit) (config, error) {
 	c.Namespace, ok = tk.GetInput("namespace")
 	if !ok {
 		return config{}, toolkit.FailedError("namespace must be set")
-	}
-
-	c.blockedNamespaces, ok = tk.GetInputList("blocked_namespaces")
-	if !ok {
-		defaultBlockedNamespaces := []string{"cncf", "buildpacks", "cnb", "buildpacksio", "buildpack"}
-		c.blockedNamespaces = defaultBlockedNamespaces
 	}
 
 	if s, ok := tk.GetInput("add-if-missing"); ok {
@@ -143,7 +136,8 @@ func getNamespace(tk toolkit.Toolkit, c config, user github.User, repositories s
 				Message: github.String(fmt.Sprintf("New Namespace: %s", c.Namespace)),
 				Content: b,
 			}); resp != nil && resp.StatusCode == http.StatusConflict {
-				tk.Warningf("retrying namespace update after conflict: %s", file)
+				tk.Warningf("retrying namespace update after conflict: %s, %s", file, resp.Body)
+				tk.Debugf("response: %s", resp.Body)
 				continue
 			} else if err != nil {
 				tk.Errorf("unable to create namespace: %s", file)
@@ -194,13 +188,4 @@ func listOrganizations(user string, organizations services.OrganizationsService)
 	}
 
 	return ids, nil
-}
-
-func isBlockedNamespaces(c config) bool {
-	for _, name := range c.blockedNamespaces {
-		if c.Namespace == name {
-			return true
-		}
-	}
-	return false
 }
