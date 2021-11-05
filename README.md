@@ -221,6 +221,27 @@ uses: buildpacks/github-actions/setup-pack@v4.1.0
 | `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
 | `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release.
 
+## Development
+
+Build the image for a given command like this:
+
+```
+$ docker build --file Dockerfile \
+    --build-arg "SOURCE=registry/verify-namespace-owner/cmd" \
+    --tag verify-namespace-owner:latest .
+```
+
+Then run the image, while providing the necessary `INPUT_` vars like this:
+
+```
+$ docker run -e INPUT_TOKEN="<your-token>" \
+    -e INPUT_USER="{\"id\":1234,\"login\":\"example\"}" \
+    -e INPUT_OWNER=example \
+    -e INPUT_REPOSITORY=registry-namespaces \
+    -e INPUT_NAMESPACE=example \
+    verify-namespace-owner:latest
+```
+
 ## License
 This library is released under version 2.0 of the [Apache License][a].
 
