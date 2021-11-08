@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/v39/github"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -56,6 +56,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 		}
 
 		it.Before(func() {
+			tk.On("Debugf", mock.Anything, mock.Anything, mock.Anything).Return()
 			tk.On("GetInput", "owner").Return("test-owner", true)
 			tk.On("GetInput", "repository").Return("test-repository", true)
 			tk.On("GetInput", "namespace").Return("test-namespace", true)
