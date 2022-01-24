@@ -6,7 +6,7 @@ require (
 	github.com/buildpacks/libcnb v1.25.4
 	github.com/google/go-containerregistry v0.8.0
 	github.com/google/go-github/v39 v39.2.0
-	github.com/onsi/gomega v1.17.0
+	github.com/onsi/gomega v1.18.0
 	github.com/pelletier/go-toml v1.9.4
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.7.0
