@@ -39,6 +39,10 @@ runs:
              --show-error \
              --silent \
              --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
              "https://github.com/google/go-containerregistry/releases/download/v${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
            | tar -C "${HOME}/bin" -xz crane
 
@@ -48,6 +52,10 @@ runs:
              --show-error \
              --silent \
              --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
              --output "${HOME}/bin/jq" \
              "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64"
            chmod +x "${HOME}"/bin/jq
@@ -58,6 +66,10 @@ runs:
              --show-error \
              --silent \
              --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
              "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-linux.tgz" \
            | tar -C "${HOME}/bin" -xz pack
 
@@ -67,6 +79,10 @@ runs:
              --show-error \
              --silent \
              --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
              --output "${HOME}/bin/yj" \
              "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/yj-linux"
            chmod +x "${HOME}"/bin/yj
