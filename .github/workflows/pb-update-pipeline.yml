@@ -1,0 +1,85 @@
+name: Update Pipeline
+"on":
+    push:
+        branches:
+            - main
+        paths:
+            - .github/pipeline-descriptor.yml
+    schedule:
+        - cron: 0 5 * * 1-5
+    workflow_dispatch: {}
+jobs:
+    update:
+        name: Update Pipeline
+        runs-on:
+            - ubuntu-latest
+        steps:
+            - uses: actions/setup-go@v3
+              with:
+                go-version: "1.18"
+            - name: Install octo
+              run: |
+                #!/usr/bin/env bash
+
+                set -euo pipefail
+
+                go install -ldflags="-s -w" github.com/paketo-buildpacks/pipeline-builder/cmd/octo@latest
+            - uses: actions/checkout@v3
+            - name: Update Pipeline
+              id: pipeline
+              run: |
+                #!/usr/bin/env bash
+
+                set -euo pipefail
+
+                if [[ -f .github/pipeline-version ]]; then
+                  OLD_VERSION=$(cat .github/pipeline-version)
+                else
+                  OLD_VERSION="0.0.0"
+                fi
+
+                rm .github/workflows/pb-*.yml || true
+                octo --descriptor "${DESCRIPTOR}"
+
+                PAYLOAD=$(gh api /repos/paketo-buildpacks/pipeline-builder/releases/latest)
+
+                NEW_VERSION=$(jq -n -r --argjson PAYLOAD "${PAYLOAD}" '$PAYLOAD.name')
+                echo "${NEW_VERSION}" > .github/pipeline-version
+
+                RELEASE_NOTES=$(
+                  gh api \
+                    -F text="$(jq -n -r --argjson PAYLOAD "${PAYLOAD}" '$PAYLOAD.body')" \
+                    -F mode="gfm" \
+                    -F context="paketo-buildpacks/pipeline-builder" \
+                    -X POST /markdown
+                )
+
+                git add .github/
+                git checkout -- .
+
+                echo "::set-output name=old-version::${OLD_VERSION}"
+                echo "::set-output name=new-version::${NEW_VERSION}"
+                echo "::set-output name=release-notes::${RELEASE_NOTES//$'\n'/%0A}"
+              env:
+                DESCRIPTOR: .github/pipeline-descriptor.yml
+                GITHUB_TOKEN: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
+            - uses: peter-evans/create-pull-request@v4
+              with:
+                author: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }} <${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}@users.noreply.github.com>
+                body: |-
+                    Bumps pipeline from `${{ steps.pipeline.outputs.old-version }}` to `${{ steps.pipeline.outputs.new-version }}`.
+
+                    <details>
+                    <summary>Release Notes</summary>
+                    ${{ steps.pipeline.outputs.release-notes }}
+                    </details>
+                branch: update/pipeline
+                commit-message: |-
+                    Bump pipeline from ${{ steps.pipeline.outputs.old-version }} to ${{ steps.pipeline.outputs.new-version }}
+
+                    Bumps pipeline from ${{ steps.pipeline.outputs.old-version }} to ${{ steps.pipeline.outputs.new-version }}.
+                delete-branch: true
+                labels: semver:patch, type:task
+                signoff: true
+                title: Bump pipeline from ${{ steps.pipeline.outputs.old-version }} to ${{ steps.pipeline.outputs.new-version }}
+                token: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
