@@ -3,7 +3,7 @@ module github.com/buildpacks/github-actions
 go 1.17
 
 require (
-	github.com/buildpacks/libcnb v1.26.0
+	github.com/buildpacks/libcnb v1.27.0
 	github.com/google/go-containerregistry v0.11.0
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.20.0
