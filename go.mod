@@ -6,7 +6,7 @@ require (
 	github.com/buildpacks/libcnb v1.26.0
 	github.com/google/go-containerregistry v0.11.0
 	github.com/google/go-github/v39 v39.2.0
-	github.com/onsi/gomega v1.20.0
+	github.com/onsi/gomega v1.20.2
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.8.0
@@ -33,9 +33,9 @@ require (
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
