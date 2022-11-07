@@ -1,6 +1,6 @@
 module github.com/buildpacks/github-actions
 
-go 1.18
+go 1.19
 
 require (
 	github.com/buildpacks/libcnb v1.27.0
