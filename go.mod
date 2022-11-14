@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/buildpacks/libcnb v1.27.0
-	github.com/google/go-containerregistry v0.12.0
+	github.com/google/go-containerregistry v0.12.1
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.24.1
 	github.com/pelletier/go-toml v1.9.5
