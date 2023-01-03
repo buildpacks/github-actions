@@ -19,6 +19,7 @@
     - [Verify Namespace Owner Action](#verify-namespace-owner-action)
     - [Yank Entry Action](#yank-entry-action)
   - [Setup pack CLI Action](#setup-pack-cli-action)
+  - [Setup Tools Action](#setup-tools-action)
   - [License](#license)
 
 ## Buildpack
@@ -178,7 +179,7 @@ with:
 | `add-if-missing` | Whether to add the current user as the owner of the namespace if that namespace does not exist. (Optional. Default `false`)
 
 ### Yank Entry Action
-The `registry/yank-entry` yanks an entry from the [Buildpack Registry Index][bri].
+The `registry/yank-entry` action yanks an entry from the [Buildpack Registry Index][bri].
 
 ```yaml
 uses: docker://ghcr.io/buildpacks/actions/registry/yank-entry
@@ -202,24 +203,34 @@ with:
 | `version` | The version of the buildpack to register.
 
 ## Setup pack CLI Action
-The setup-pack action adds [crane][crane], [`jq`][jq], [`pack`][pack], and [`yj`][yj] to the environment.
+The `setup-pack` action adds [`pack`][pack] to the environment.
 
-[crane]: https://github.com/google/go-containerregistry/tree/master/cmd/crane
-[jq]:    https://stedolan.github.io/jq/
 [pack]:  https://github.com/buildpacks/pack
-[yj]:    https://github.com/sclevine/yj
 
 ```yaml
-uses: buildpacks/github-actions/setup-pack@v4.1.0
+uses: buildpacks/github-actions/setup-pack@v5.0.0
 ```
 
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to latest release.
-| `jq-version` | Optional version of [`jq`][jq] to install. Defaults to latest release.
 | `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
-| `yj-version` | Optional version of [`yj`][yj] to install. Defaults to latest release.
+
+## Setup Tools Action
+The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
+
+[crane]: https://github.com/google/go-containerregistry/tree/master/cmd/crane
+[yj]:    https://github.com/sclevine/yj
+
+```yaml
+uses: buildpacks/github-actions/setup-tools@v5.0.0
+```
+
+#### Inputs <!-- omit in toc -->
+| Parameter | Description
+| :-------- | :----------
+| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to `0.12.1`.
+| `yj-version` | Optional version of [`yj`][yj] to install. Defaults to `5.1.0`.
 
 ## License
 This library is released under version 2.0 of the [Apache License][a].
