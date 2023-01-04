@@ -40,6 +40,11 @@ runs:
 
            YJ_VERSION=${{ inputs.yj-version }}
            echo "Installing yj ${YJ_VERSION}"
+           if [[ "${YJ_VERSION}" < "5.1.0" ]]; then
+             YJ_DOWNLOAD_FILENAME="yj-linux"
+           else
+             YJ_DOWNLOAD_FILENAME="yj-linux-amd64"
+           fi
            curl \
              --show-error \
              --silent \
@@ -49,5 +54,5 @@ runs:
              --connect-timeout 5 \
              --max-time 60 \
              --output "${HOME}/bin/yj" \
-             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/yj-linux"
+             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/${YJ_DOWNLOAD_FILENAME}"
            chmod +x "${HOME}"/bin/yj
