@@ -11,7 +11,7 @@ jobs:
         steps:
             - uses: actions/setup-go@v3
               with:
-                go-version: "1.18"
+                go-version: "1.19"
             - uses: actions/checkout@v3
             - name: Update Go Version & Modules
               id: update-go
@@ -49,7 +49,7 @@ jobs:
                 echo "::set-output name=commit-body::${COMMIT_BODY}"
                 echo "::set-output name=commit-semver::${COMMIT_SEMVER}"
               env:
-                GO_VERSION: "1.18"
+                GO_VERSION: "1.19"
             - uses: peter-evans/create-pull-request@v4
               with:
                 author: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }} <${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}@users.noreply.github.com>
