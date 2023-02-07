@@ -4,4 +4,4 @@ github:
 
 codeowners:
 - path:  "*"
-  owner: "@buildpacks/distribution-maintainers"
+  owner: "@buildpacks/platform-maintainers @buildpacks/toc"
