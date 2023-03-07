@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.27.1
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	golang.org/x/oauth2 v0.5.0
 	gopkg.in/retry.v1 v1.0.3
 )
