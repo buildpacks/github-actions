@@ -45,7 +45,7 @@ jobs:
               VERSION=$(git rev-parse --short HEAD)
             fi
 
-            echo "::set-output name=version::${VERSION}"
+            echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
             echo "Selected ${VERSION} from
               * ref: ${GITHUB_REF}
               * sha: ${GITHUB_SHA}
