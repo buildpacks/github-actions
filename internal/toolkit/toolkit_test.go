@@ -81,7 +81,7 @@ func TestToolkit(t *testing.T) {
 
 			var (
 				b  = &bytes.Buffer{}
-				tk = toolkit.DefaultToolkit{Writer: b}
+				tk = toolkit.DefaultToolkit{Writer: b, Delemiter: "EOF"}
 			)
 
 			it("adds path", func() {
