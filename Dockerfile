@@ -1,4 +1,4 @@
-FROM golang:1.17 as build-stage
+FROM golang:1.19 as build-stage
 
 RUN apt-get update && apt-get install -y --no-install-recommends upx
 
