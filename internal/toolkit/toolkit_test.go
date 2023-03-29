@@ -19,7 +19,7 @@ package toolkit_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -81,11 +81,11 @@ func TestToolkit(t *testing.T) {
 
 			var (
 				b  = &bytes.Buffer{}
-				tk = toolkit.DefaultToolkit{Writer: b}
+				tk = toolkit.DefaultToolkit{Writer: b, Delemiter: "EOF"}
 			)
 
 			it("adds path", func() {
-				f, err := ioutil.TempFile("", "github-path")
+				f, err := os.CreateTemp("", "github-path")
 				Expect(err).NotTo(HaveOccurred())
 				_, err = fmt.Fprintln(f, "test-value")
 				Expect(err).NotTo(HaveOccurred())
@@ -95,12 +95,13 @@ func TestToolkit(t *testing.T) {
 
 				Expect(tk.AddPath("test-path-1", "test-path-2")).To(Succeed())
 
-				b, err := ioutil.ReadFile(f.Name())
+				b, err := os.ReadFile(f.Name())
+				Expect(err).NotTo(HaveOccurred())
 				Expect(string(b)).To(Equal("test-value\ntest-path-1\ntest-path-2\n"))
 			})
 
 			it("exports variable", func() {
-				f, err := ioutil.TempFile("", "github-env")
+				f, err := os.CreateTemp("", "github-env")
 				Expect(err).NotTo(HaveOccurred())
 				_, err = fmt.Fprintln(f, "TEST_KEY=test-value")
 				Expect(err).NotTo(HaveOccurred())
@@ -111,7 +112,8 @@ func TestToolkit(t *testing.T) {
 				Expect(tk.ExportVariable("TEST_NAME_1", "test-value-1")).To(Succeed())
 				Expect(tk.ExportVariable("TEST_NAME_2", "test-value-2\ntest-value-3")).To(Succeed())
 
-				b, err := ioutil.ReadFile(f.Name())
+				b, err := os.ReadFile(f.Name())
+				Expect(err).NotTo(HaveOccurred())
 				Expect(string(b)).To(Equal("TEST_KEY=test-value\nTEST_NAME_1=test-value-1\nTEST_NAME_2<<EOF\ntest-value-2\ntest-value-3\nEOF\n"))
 			})
 
@@ -138,9 +140,18 @@ func TestToolkit(t *testing.T) {
 			})
 
 			it("sets output", func() {
+				f, err := os.CreateTemp("", "github-output")
+				Expect(err).NotTo(HaveOccurred())
+				_, err = fmt.Fprintln(f, "TEST_OUTPUT=test-value")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(f.Close()).To(Succeed())
+				tk.Environment = map[string]string{"GITHUB_OUTPUT": f.Name()}
+
 				tk.SetOutput("test-name", "test-value-1\ntest-value-2")
 
-				Expect(b.String()).To(Equal("::set-output name=test-name::test-value-1%0Atest-value-2\n"))
+				b, err := os.ReadFile(f.Name())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(b)).To(Equal("TEST_OUTPUT=test-value\ntest-name<<EOF\ntest-value-1\ntest-value-2\nEOF\n"))
 			})
 
 			it("gets state", func() {
@@ -155,9 +166,18 @@ func TestToolkit(t *testing.T) {
 			})
 
 			it("sets state", func() {
+				f, err := os.CreateTemp("", "github-state")
+				Expect(err).NotTo(HaveOccurred())
+				_, err = fmt.Fprintln(f, "TEST_STATE=test-value")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(f.Close()).To(Succeed())
+				tk.Environment = map[string]string{"GITHUB_STATE": f.Name()}
+
 				tk.SetState("test-name", "test-value-1\ntest-value-2")
 
-				Expect(b.String()).To(Equal("::save-state name=test-name::test-value-1%0Atest-value-2\n"))
+				b, err := os.ReadFile(f.Name())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(b)).To(Equal("TEST_STATE=test-value\ntest-name<<EOF\ntest-value-1\ntest-value-2\nEOF\n"))
 			})
 
 			it("adds mask", func() {

@@ -17,6 +17,8 @@
 package toolkit
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -92,6 +94,7 @@ type DefaultToolkit struct {
 
 	Environment map[string]string
 	Writer      io.Writer
+	Delemiter   string
 }
 
 func (d *DefaultToolkit) AddPath(paths ...string) error {
@@ -116,11 +119,15 @@ func (d *DefaultToolkit) AddPath(paths ...string) error {
 }
 
 func (d *DefaultToolkit) ExportVariable(name string, value string) error {
+	return d.export("GITHUB_ENV", name, value)
+}
+
+func (d *DefaultToolkit) export(env string, name string, value string) error {
 	d.once.Do(d.init)
 
-	path, ok := d.Environment["GITHUB_ENV"]
+	path, ok := d.Environment[env]
 	if !ok {
-		return FailedError("$GITHUB_ENV must be set")
+		return FailedErrorf("$%s must be set", env)
 	}
 
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
@@ -130,7 +137,7 @@ func (d *DefaultToolkit) ExportVariable(name string, value string) error {
 	defer f.Close()
 
 	if strings.ContainsRune(value, '\n') {
-		if _, err := fmt.Fprintln(f, fmt.Sprintf("%s<<EOF\n%s\nEOF", name, value)); err != nil {
+		if _, err := fmt.Fprintln(f, fmt.Sprintf("%s<<%s\n%s\n%s", name, d.Delemiter, value, d.Delemiter)); err != nil {
 			return FailedError("unable to write variable")
 		}
 	} else {
@@ -154,8 +161,10 @@ func (d *DefaultToolkit) GetInputList(name string) ([]string, bool) {
 }
 
 func (d *DefaultToolkit) SetOutput(name string, value string) {
-	d.once.Do(d.init)
-	_, _ = fmt.Fprintf(d.Writer, "::set-output name=%s::%s\n", name, escape(value))
+	err := d.export("GITHUB_OUTPUT", name, value)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (d *DefaultToolkit) GetState(name string) (string, bool) {
@@ -165,8 +174,10 @@ func (d *DefaultToolkit) GetState(name string) (string, bool) {
 }
 
 func (d *DefaultToolkit) SetState(name string, value string) {
-	d.once.Do(d.init)
-	_, _ = fmt.Fprintf(d.Writer, "::save-state name=%s::%s\n", name, escape(value))
+	err := d.export("GITHUB_STATE", name, value)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (d *DefaultToolkit) AddMask(mask string) {
@@ -247,6 +258,15 @@ func (d *DefaultToolkit) init() {
 
 	if d.Writer == nil {
 		d.Writer = os.Stdout
+	}
+
+	if d.Delemiter == "" {
+		data := make([]byte, 16) // roughly the same entropy as uuid v4 used in https://github.com/actions/toolkit/blob/b36e70495fbee083eb20f600eafa9091d832577d/packages/core/src/file-command.ts#L28
+		_, err := rand.Read(data)
+		if err != nil {
+			panic(fmt.Errorf("could not generate random delimiter: %w", err))
+		}
+		d.Delemiter = hex.EncodeToString(data)
 	}
 }
 
