@@ -24,7 +24,11 @@ runs:
 
            mkdir -p "${HOME}"/bin
            echo "PATH=${HOME}/bin:${PATH}" >> "${GITHUB_ENV}"
-
+          
+           CRANE_PLATFORM="Linux_x86_64"
+           if [ $(arch) = "aarch64" ]; then
+              CRANE_PLATFORM="Linux_arm64"
+           fi
            CRANE_VERSION=${{ inputs.crane-version }}
            echo "Installing crane ${CRANE_VERSION}"
            curl \
@@ -35,15 +39,19 @@ runs:
              --retry 3 \
              --connect-timeout 5 \
              --max-time 60 \
-             "https://github.com/google/go-containerregistry/releases/download/v${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
+             "https://github.com/google/go-containerregistry/releases/download/v${CRANE_VERSION}/go-containerregistry_${CRANE_PLATFORM}.tar.gz" \
            | tar -C "${HOME}/bin" -xz crane
 
            YJ_VERSION=${{ inputs.yj-version }}
            echo "Installing yj ${YJ_VERSION}"
+           YJ_DOWNLOAD_FILENAME="yj-linux"
            if [[ "${YJ_VERSION}" < "5.1.0" ]]; then
-             YJ_DOWNLOAD_FILENAME="yj-linux"
+             YJ_PLATFORM=""
            else
-             YJ_DOWNLOAD_FILENAME="yj-linux-amd64"
+             YJ_PLATFORM="-amd64"
+           fi
+           if [ $(arch) = "aarch64" ]; then
+              YJ_PLATFORM="-arm64"
            fi
            curl \
              --show-error \
@@ -54,5 +62,5 @@ runs:
              --connect-timeout 5 \
              --max-time 60 \
              --output "${HOME}/bin/yj" \
-             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/${YJ_DOWNLOAD_FILENAME}"
+             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/${YJ_DOWNLOAD_FILENAME}${YJ_PLATFORM}"
            chmod +x "${HOME}"/bin/yj

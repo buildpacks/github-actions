@@ -21,6 +21,11 @@ runs:
            mkdir -p "${HOME}"/bin
            echo "PATH=${HOME}/bin:${PATH}" >> "${GITHUB_ENV}"
 
+           PLATFORM="linux"
+           if [ $(arch) = "aarch64" ]; then
+              PLATFORM="linux-arm64"
+           fi
+
            PACK_VERSION=${{ inputs.pack-version }}
            echo "Installing pack ${PACK_VERSION}"
            curl \
@@ -31,5 +36,5 @@ runs:
              --retry 3 \
              --connect-timeout 5 \
              --max-time 60 \
-             "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-linux.tgz" \
+             "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-${PLATFORM}.tgz" \
            | tar -C "${HOME}/bin" -xz pack
