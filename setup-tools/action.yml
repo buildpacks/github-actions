@@ -6,7 +6,7 @@ inputs:
   crane-version:
     description: 'The version of crane to install'
     required:    false
-    default:     '0.12.1'
+    default:     '0.14.0'
   yj-version:
     description: 'The version of yj to install'
     required:    false
