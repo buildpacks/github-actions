@@ -41,7 +41,7 @@ func main() {
 
 	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
 
-	strategy := retry.LimitTime(2*time.Minute,
+	strategy := retry.LimitTime(8*time.Minute,
 		retry.Exponential{
 			Initial:  time.Second,
 			MaxDelay: 30 * time.Second,
