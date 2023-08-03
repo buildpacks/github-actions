@@ -1,6 +1,4 @@
-FROM golang:1.19 as build-stage
-
-RUN apt-get update && apt-get install -y --no-install-recommends upx
+FROM golang:1.20 as build-stage
 
 WORKDIR /src
 ENV GO111MODULE=on CGO_ENABLED=0
@@ -16,8 +14,6 @@ RUN go build \
   $SOURCE/main.go
 
 RUN strip /bin/action
-
-RUN upx -q -9 /bin/action
 
 FROM scratch
 COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
