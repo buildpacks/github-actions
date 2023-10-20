@@ -30,6 +30,9 @@ jobs:
             
             Release notes:
             https://github.com/buildpacks/pack/releases/tag/v${{ steps.version.outputs.new_version }}
+          labels: |
+            semver:patch
+            type:dependency-upgrade
           branch: update-version
           base: main
           signoff: true
