@@ -1,0 +1,66 @@
+name:        'Setup tools'
+description: 'Install the tools crane and yq, and add them to $PATH'
+author:      'Cloud Native Buildpacks'
+
+inputs:
+  crane-version:
+    description: 'The version of crane to install'
+    required:    false
+    default:     '0.14.0'
+  yj-version:
+    description: 'The version of yj to install'
+    required:    false
+    default:     '5.1.0'
+
+runs:
+  using: "composite"
+  steps:
+  - name:  Install additional buildpack management tools
+    shell: bash
+    run:   |
+           #!/usr/bin/env bash
+
+           set -euo pipefail
+
+           mkdir -p "${HOME}"/bin
+           echo "PATH=${HOME}/bin:${PATH}" >> "${GITHUB_ENV}"
+          
+           CRANE_PLATFORM="Linux_x86_64"
+           if [ $(arch) = "aarch64" ]; then
+              CRANE_PLATFORM="Linux_arm64"
+           fi
+           CRANE_VERSION=${{ inputs.crane-version }}
+           echo "Installing crane ${CRANE_VERSION}"
+           curl \
+             --show-error \
+             --silent \
+             --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
+             "https://github.com/google/go-containerregistry/releases/download/v${CRANE_VERSION}/go-containerregistry_${CRANE_PLATFORM}.tar.gz" \
+           | tar -C "${HOME}/bin" -xz crane
+
+           YJ_VERSION=${{ inputs.yj-version }}
+           echo "Installing yj ${YJ_VERSION}"
+           YJ_DOWNLOAD_FILENAME="yj-linux"
+           if [[ "${YJ_VERSION}" < "5.1.0" ]]; then
+             YJ_PLATFORM=""
+           else
+             YJ_PLATFORM="-amd64"
+           fi
+           if [ $(arch) = "aarch64" ]; then
+              YJ_PLATFORM="-arm64"
+           fi
+           curl \
+             --show-error \
+             --silent \
+             --location \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
+             --output "${HOME}/bin/yj" \
+             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/${YJ_DOWNLOAD_FILENAME}${YJ_PLATFORM}"
+           chmod +x "${HOME}"/bin/yj

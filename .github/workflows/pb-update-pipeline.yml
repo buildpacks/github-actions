@@ -14,17 +14,17 @@ jobs:
         runs-on:
             - ubuntu-latest
         steps:
-            - uses: actions/setup-go@v2
+            - uses: actions/setup-go@v4
               with:
-                go-version: "1.16"
+                go-version: "1.20"
             - name: Install octo
               run: |
                 #!/usr/bin/env bash
 
                 set -euo pipefail
 
-                GO111MODULE=on go get -u -ldflags="-s -w" github.com/paketo-buildpacks/pipeline-builder/cmd/octo
-            - uses: actions/checkout@v2
+                go install -ldflags="-s -w" github.com/paketo-buildpacks/pipeline-builder/cmd/octo@latest
+            - uses: actions/checkout@v3
             - name: Update Pipeline
               id: pipeline
               run: |
@@ -38,6 +38,7 @@ jobs:
                   OLD_VERSION="0.0.0"
                 fi
 
+                rm .github/workflows/pb-*.yml || true
                 octo --descriptor "${DESCRIPTOR}"
 
                 PAYLOAD=$(gh api /repos/paketo-buildpacks/pipeline-builder/releases/latest)
@@ -56,13 +57,15 @@ jobs:
                 git add .github/
                 git checkout -- .
 
-                echo "::set-output name=old-version::${OLD_VERSION}"
-                echo "::set-output name=new-version::${NEW_VERSION}"
-                echo "::set-output name=release-notes::${RELEASE_NOTES//$'\n'/%0A}"
+                echo "old-version=${OLD_VERSION}" >> "$GITHUB_OUTPUT"
+                echo "new-version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+                DELIMITER=$(openssl rand -hex 16) # roughly the same entropy as uuid v4 used in https://github.com/actions/toolkit/blob/b36e70495fbee083eb20f600eafa9091d832577d/packages/core/src/file-command.ts#L28
+                printf "release-notes<<%s\n%s\n%s\n" "${DELIMITER}" "${RELEASE_NOTES}" "${DELIMITER}" >> "${GITHUB_OUTPUT}" # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
               env:
                 DESCRIPTOR: .github/pipeline-descriptor.yml
                 GITHUB_TOKEN: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
-            - uses: peter-evans/create-pull-request@v3
+            - uses: peter-evans/create-pull-request@v5
               with:
                 author: ${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }} <${{ secrets.IMPLEMENTATION_GITHUB_USERNAME }}@users.noreply.github.com>
                 body: |-

@@ -1,29 +1,17 @@
 name:        'Setup pack CLI'
-description: 'Setup the Cloud Native Buildpacks pack CLI as well as other useful tools and add them to $PATH'
+description: 'Install the Cloud Native Buildpacks pack CLI and add it to $PATH'
 author:      'Cloud Native Buildpacks'
 
 inputs:
-  crane-version:
-    description: 'The version of crane to install'
-    required:    false
-    default:     '0.6.0'
-  jq-version:
-    description: 'The version of jq to install'
-    required:    false
-    default:     '1.6'
   pack-version:
     description: 'The version of pack to install'
     required:    false
-    default:     '0.22.0'
-  yj-version:
-    description: 'The version of yj to install'
-    required:    false
-    default:     '5.0.0'
+    default:     '0.32.1'
 
 runs:
   using: "composite"
   steps:
-  - name:  Setup pack CLI
+  - name:  Install pack CLI
     shell: bash
     run:   |
            #!/usr/bin/env bash
@@ -33,24 +21,10 @@ runs:
            mkdir -p "${HOME}"/bin
            echo "PATH=${HOME}/bin:${PATH}" >> "${GITHUB_ENV}"
 
-           CRANE_VERSION=${{ inputs.crane-version }}
-           echo "Installing crane ${CRANE_VERSION}"
-           curl \
-             --show-error \
-             --silent \
-             --location \
-             "https://github.com/google/go-containerregistry/releases/download/v${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
-           | tar -C "${HOME}/bin" -xz crane
-
-           JQ_VERSION=${{ inputs.jq-version }}
-           echo "Installing jq ${JQ_VERSION}"
-           curl \
-             --show-error \
-             --silent \
-             --location \
-             --output "${HOME}/bin/jq" \
-             "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64"
-           chmod +x "${HOME}"/bin/jq
+           PLATFORM="linux"
+           if [ $(arch) = "aarch64" ]; then
+              PLATFORM="linux-arm64"
+           fi
 
            PACK_VERSION=${{ inputs.pack-version }}
            echo "Installing pack ${PACK_VERSION}"
@@ -58,15 +32,9 @@ runs:
              --show-error \
              --silent \
              --location \
-             "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-linux.tgz" \
+             --fail \
+             --retry 3 \
+             --connect-timeout 5 \
+             --max-time 60 \
+             "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-${PLATFORM}.tgz" \
            | tar -C "${HOME}/bin" -xz pack
-
-           YJ_VERSION=${{ inputs.yj-version }}
-           echo "Installing yj ${YJ_VERSION}"
-           curl \
-             --show-error \
-             --silent \
-             --location \
-             --output "${HOME}/bin/yj" \
-             "https://github.com/sclevine/yj/releases/download/v${YJ_VERSION}/yj-linux"
-           chmod +x "${HOME}"/bin/yj

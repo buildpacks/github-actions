@@ -24,7 +24,6 @@ var restrictedNamespaces = []string{
 	"buildpacks",
 	"buildpacks-io",
 	"buildpacks.io",
-	"buildpacksio",
 	"cnb",
 	"cnbs",
 	"cncf",

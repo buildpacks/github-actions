@@ -1,0 +1,38 @@
+name: update-pack-version
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - pack-release
+
+jobs:
+  update-pack-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Retrieve latest pack version
+        id: version
+        run: |
+            NEW_VERSION=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/buildpacks/pack/releases/latest | jq .tag_name -r | cut -c 2-)
+            echo "new_version=${NEW_VERSION}" >> ${GITHUB_OUTPUT}
+      - name: Update setup-pack/action.yml with the new Pack version
+        run: |
+            sed -i -z "s/default:     '[0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}'/default:     '${{ steps.version.outputs.new_version }}'/" setup-pack/action.yml
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.DISTRIBUTION_GITHUB_TOKEN }}
+          commit-message: Update default Pack version to v${{ steps.version.outputs.new_version }}
+          title: Update default Pack version to v${{ steps.version.outputs.new_version }}
+          body: |
+            Updates the `setup-pack` action's default `pack-version` to the latest Pack release.
+            
+            Release notes:
+            https://github.com/buildpacks/pack/releases/tag/v${{ steps.version.outputs.new_version }}
+          labels: |
+            semver:patch
+            type:dependency-upgrade
+          branch: update-version
+          base: main
+          signoff: true
