@@ -3,22 +3,9 @@ updates:
     - package-ecosystem: gomod
       directory: /
       schedule:
-        interval: weekly
-      groups:
-        # Group all minor/patch go dependencies into a single PR.
-        go-dependencies:
-          update-types:
-            - "minor"
-            - "patch"
+        interval: daily
       ignore:
         - dependency-name: github.com/onsi/gomega
-      labels:
-        - semver:patch
-        - type:dependency-upgrade
-    - package-ecosystem: github-actions
-      directory: /
-      schedule:
-        interval: weekly
       labels:
         - semver:patch
         - type:dependency-upgrade
