@@ -24,7 +24,7 @@ jobs:
     steps:
     - if:   ${{ github.event_name != 'pull_request' || ! github.event.pull_request.head.repo.fork }}
       name: Docker login ghcr.io
-      uses: docker/login-action@v1.10.0
+      uses: docker/login-action@v3.0.0
       with:
         password: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
         registry: ghcr.io
