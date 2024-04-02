@@ -55,6 +55,12 @@ jobs:
                 )
 
                 git add .github/
+                git add .gitignore
+
+                if [ -f scripts/build.sh ]; then
+                  git add scripts/build.sh
+                fi
+
                 git checkout -- .
 
                 echo "old-version=${OLD_VERSION}" >> "$GITHUB_OUTPUT"
