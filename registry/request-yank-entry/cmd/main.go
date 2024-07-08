@@ -27,7 +27,7 @@ import (
 	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/request-yank-entry"
+	entry "github.com/buildpacks/github-actions/registry/request-yank-entry"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 
 	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
 
-	strategy := retry.LimitTime(8*time.Minute,
+	strategy := retry.LimitTime(20*time.Minute,
 		retry.Exponential{
 			Initial:  time.Second,
 			MaxDelay: 30 * time.Second,
