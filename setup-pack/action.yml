@@ -6,7 +6,7 @@ inputs:
   pack-version:
     description: 'The version of pack to install'
     required:    false
-    default:     '0.35.0'
+    default:     '0.35.1'
 
 runs:
   using: "composite"
