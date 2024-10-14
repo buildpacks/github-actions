@@ -3,7 +3,7 @@ module github.com/buildpacks/github-actions
 go 1.23
 
 require (
-	github.com/buildpacks/libcnb v1.30.3
+	github.com/buildpacks/libcnb v1.30.4
 	github.com/google/go-containerregistry v0.20.2
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.34.2
@@ -24,7 +24,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/klauspost/compress v1.17.10 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
