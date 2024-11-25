@@ -9,14 +9,14 @@ require (
 	github.com/onsi/gomega v1.35.1
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/oauth2 v0.24.0
 	gopkg.in/retry.v1 v1.0.3
 )
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
-	github.com/Masterminds/semver/v3 v3.3.0 // indirect
+	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v27.3.1+incompatible // indirect
