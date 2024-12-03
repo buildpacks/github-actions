@@ -6,7 +6,7 @@ require (
 	github.com/buildpacks/libcnb v1.30.4
 	github.com/google/go-containerregistry v0.20.2
 	github.com/google/go-github/v39 v39.2.0
-	github.com/onsi/gomega v1.35.1
+	github.com/onsi/gomega v1.36.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.10.0
@@ -17,7 +17,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
-	github.com/containerd/stargz-snapshotter/estargz v0.16.1 // indirect
+	github.com/containerd/stargz-snapshotter/estargz v0.16.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v27.3.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
