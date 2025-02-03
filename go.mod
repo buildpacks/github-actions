@@ -2,7 +2,7 @@ module github.com/buildpacks/github-actions
 
 go 1.23.0
 
-toolchain go1.23.4
+toolchain go1.23.5
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
@@ -34,7 +34,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/vbatts/tar-split v0.11.7 // indirect
+	github.com/vbatts/tar-split v0.12.1 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
