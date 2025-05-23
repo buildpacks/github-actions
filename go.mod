@@ -1,12 +1,10 @@
 module github.com/buildpacks/github-actions
 
-go 1.23.0
-
-toolchain go1.23.8
+go 1.24.0
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
-	github.com/google/go-containerregistry v0.20.3
+	github.com/google/go-containerregistry v0.20.5
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.37.0
 	github.com/pelletier/go-toml v1.9.5
