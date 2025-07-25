@@ -16,6 +16,7 @@ RUN go build \
 RUN strip /bin/action
 
 FROM scratch
+LABEL org.opencontainers.image.source=https://github.com/buildpacks/github-actions
 COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build-stage /bin/action /bin/action
 ENTRYPOINT ["/bin/action"]
