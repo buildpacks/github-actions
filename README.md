@@ -208,7 +208,7 @@ The `setup-pack` action adds [`pack`][pack] to the environment.
 [pack]:  https://github.com/buildpacks/pack
 
 ```yaml
-uses: buildpacks/github-actions/setup-pack@v5.0.0
+uses: buildpacks/github-actions/setup-pack@vX.Y.Z
 ```
 
 #### Inputs <!-- omit in toc -->
@@ -223,7 +223,7 @@ The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
 [yj]:    https://github.com/sclevine/yj
 
 ```yaml
-uses: buildpacks/github-actions/setup-tools@v5.0.0
+uses: buildpacks/github-actions/setup-tools@vX.Y.Z
 ```
 
 #### Inputs <!-- omit in toc -->
