@@ -8,7 +8,7 @@ require (
 	github.com/buildpacks/libcnb v1.30.4
 	github.com/google/go-containerregistry v0.20.7
 	github.com/google/go-github/v39 v39.2.0
-	github.com/onsi/gomega v1.39.0
+	github.com/onsi/gomega v1.39.1
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.11.1
@@ -21,7 +21,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.18.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/cli v29.1.5+incompatible // indirect
+	github.com/docker/cli v29.2.0+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.5 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
