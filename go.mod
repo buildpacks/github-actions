@@ -1,8 +1,6 @@
 module github.com/buildpacks/github-actions
 
-go 1.24.0
-
-toolchain go1.24.13
+go 1.25.0
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
@@ -12,7 +10,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/oauth2 v0.35.0
+	golang.org/x/oauth2 v0.36.0
 	gopkg.in/retry.v1 v1.0.3
 )
 
