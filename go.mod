@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
-	github.com/google/go-containerregistry v0.21.3
+	github.com/google/go-containerregistry v0.21.4
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.39.1
 	github.com/pelletier/go-toml v1.9.5
@@ -20,7 +20,6 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.18.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v29.3.1+incompatible // indirect
-	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.5 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
