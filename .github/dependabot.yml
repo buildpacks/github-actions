@@ -1,11 +1,14 @@
 version: 2
 updates:
-    - package-ecosystem: gomod
-      directory: /
-      schedule:
-        interval: daily
-      ignore:
-        - dependency-name: github.com/onsi/gomega
-      labels:
-        - semver:patch
-        - type:dependency-upgrade
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - semver:patch
+      - type:dependency-upgrade
+    groups:
+      go-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
