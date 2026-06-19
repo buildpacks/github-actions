@@ -7,12 +7,63 @@ inputs:
     description: 'The version of pack to install'
     required:    false
     default:     '0.40.7'
+  pack-version-file:
+    description: >-
+      Path to a file that contains the pack version to install, such as a
+      .tool-versions file (the `pack <version>` entry is read) or a plain
+      file like .pack-version (the first non-comment line is read). When set,
+      it takes precedence over pack-version.
+    required:    false
 
 runs:
   using: "composite"
   steps:
+  - name:  Resolve pack version
+    id:    resolve
+    shell: bash
+    env:
+      PACK_VERSION:      ${{ inputs.pack-version }}
+      PACK_VERSION_FILE: ${{ inputs.pack-version-file }}
+    run:   |
+           #!/usr/bin/env bash
+
+           set -euo pipefail
+
+           version="${PACK_VERSION}"
+
+           if [ -n "${PACK_VERSION_FILE}" ]; then
+             if [ ! -f "${PACK_VERSION_FILE}" ]; then
+               echo "::error::pack-version-file '${PACK_VERSION_FILE}' does not exist"
+               exit 1
+             fi
+
+             case "$(basename "${PACK_VERSION_FILE}")" in
+               .tool-versions)
+                 # asdf/mise format, e.g. `pack 0.40.6` (extra fields and comments are ignored)
+                 version="$(grep -E '^pack[[:space:]]+' "${PACK_VERSION_FILE}" | head -n1 | awk '{print $2}')"
+                 ;;
+               *)
+                 # Plain version file: first non-empty, non-comment line
+                 version="$(grep -vE '^[[:space:]]*(#|$)' "${PACK_VERSION_FILE}" | head -n1 | tr -d '[:space:]')"
+                 ;;
+             esac
+
+             if [ -z "${version}" ]; then
+               echo "::error::could not determine a pack version from '${PACK_VERSION_FILE}'"
+               exit 1
+             fi
+
+             # Tolerate an optional leading `v` in the file (e.g. `v0.40.6`).
+             version="${version#v}"
+             echo "Resolved pack version '${version}' from '${PACK_VERSION_FILE}'"
+           fi
+
+           echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
   - name:  Install pack CLI
     shell: bash
+    env:
+      PACK_VERSION: ${{ steps.resolve.outputs.version }}
     run:   |
            #!/usr/bin/env bash
 
@@ -22,12 +73,17 @@ runs:
            echo "PATH=${HOME}/bin:${PATH}" >> "${GITHUB_ENV}"
 
            PLATFORM="linux"
-           if [ $(arch) = "aarch64" ]; then
+           if [ "$(arch)" = "aarch64" ]; then
               PLATFORM="linux-arm64"
            fi
 
-           PACK_VERSION=${{ inputs.pack-version }}
            echo "Installing pack ${PACK_VERSION}"
+
+           BASE_URL="https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}"
+           ASSET="pack-v${PACK_VERSION}-${PLATFORM}.tgz"
+           TMP="$(mktemp -d)"
+           trap 'rm -rf "${TMP}"' EXIT
+
            curl \
              --show-error \
              --silent \
@@ -36,5 +92,31 @@ runs:
              --retry 3 \
              --connect-timeout 5 \
              --max-time 60 \
-             "https://github.com/buildpacks/pack/releases/download/v${PACK_VERSION}/pack-v${PACK_VERSION}-${PLATFORM}.tgz" \
-           | tar -C "${HOME}/bin" -xz pack
+             --output "${TMP}/${ASSET}" \
+             "${BASE_URL}/${ASSET}"
+
+           # Verify the download against the release's published SHA256 checksum.
+           # Each asset is published with a sibling <asset>.sha256 file. If it
+           # cannot be fetched (e.g. a mirror that does not host it), warn and
+           # proceed so existing setups are not broken.
+           if EXPECTED="$(curl \
+                 --show-error \
+                 --silent \
+                 --location \
+                 --fail \
+                 --retry 3 \
+                 --connect-timeout 5 \
+                 --max-time 60 \
+                 "${BASE_URL}/${ASSET}.sha256" | awk '{print $1}')" \
+              && [ -n "${EXPECTED}" ]; then
+             ACTUAL="$(sha256sum "${TMP}/${ASSET}" | awk '{print $1}')"
+             if [ "${EXPECTED}" != "${ACTUAL}" ]; then
+               echo "::error::checksum mismatch for ${ASSET} (expected ${EXPECTED}, got ${ACTUAL})"
+               exit 1
+             fi
+             echo "Verified ${ASSET} against the published SHA256 checksum"
+           else
+             echo "::warning::could not fetch ${ASSET}.sha256; skipping checksum verification"
+           fi
+
+           tar -C "${HOME}/bin" -xzf "${TMP}/${ASSET}" pack
