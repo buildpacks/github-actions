@@ -213,8 +213,13 @@ uses: buildpacks/github-actions/setup-pack@vX.Y.Z
 
 The version can also be kept in a file and referenced with the
 `pack-version-file` input. Both a `.tool-versions` file (the `pack` entry is
-read) and a plain version file like `.pack-version` are supported. When
-`pack-version-file` is set it takes precedence over `pack-version`.
+read) and a plain version file like `.pack-version` are supported. When both
+`pack-version` and `pack-version-file` are set, `pack-version` takes precedence
+(matching the [`setup-go`][setup-go-version-file] `go-version` /
+`go-version-file` convention). When neither is set, a pinned fallback version
+is used.
+
+[setup-go-version-file]: https://github.com/actions/setup-go/blob/main/docs/advanced-usage.md#using-the-go-version-file-input
 
 ```yaml
 uses: buildpacks/github-actions/setup-pack@vX.Y.Z
@@ -229,8 +234,8 @@ the action warns and proceeds.
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
-| `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Takes precedence over `pack-version`.
+| `pack-version` | Optional version of [`pack`][pack] to install. Takes precedence over `pack-version-file` when both are set. Defaults to a pinned fallback version.
+| `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Used only when `pack-version` is not set.
 
 ## Setup Tools Action
 The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
