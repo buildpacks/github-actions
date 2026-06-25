@@ -18,15 +18,15 @@ jobs:
             echo "new_version=${NEW_VERSION}" >> ${GITHUB_OUTPUT}
       - name: Update setup-pack/action.yml with the new Pack version
         run: |
-            sed -i -z "s/default:     '[0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}'/default:     '${{ steps.version.outputs.new_version }}'/" setup-pack/action.yml
+            sed -i "s/FALLBACK_PACK_VERSION: '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}'/FALLBACK_PACK_VERSION: '${{ steps.version.outputs.new_version }}'/" setup-pack/action.yml
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.DISTRIBUTION_GITHUB_TOKEN }}
-          commit-message: Update default Pack version to v${{ steps.version.outputs.new_version }}
-          title: Update default Pack version to v${{ steps.version.outputs.new_version }}
+          commit-message: Update fallback Pack version to v${{ steps.version.outputs.new_version }}
+          title: Update fallback Pack version to v${{ steps.version.outputs.new_version }}
           body: |
-            Updates the `setup-pack` action's default `pack-version` to the latest Pack release.
+            Updates the `setup-pack` action's fallback `pack-version` to the latest Pack release.
             
             Release notes:
             https://github.com/buildpacks/pack/releases/tag/v${{ steps.version.outputs.new_version }}

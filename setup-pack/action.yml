@@ -4,15 +4,18 @@ author:      'Cloud Native Buildpacks'
 
 inputs:
   pack-version:
-    description: 'The version of pack to install'
+    description: >-
+      The version of pack to install. When both pack-version and
+      pack-version-file are set, pack-version takes precedence (matching the
+      setup-go go-version/go-version-file convention). When neither is set, a
+      pinned fallback version is used.
     required:    false
-    default:     '0.40.7'
   pack-version-file:
     description: >-
       Path to a file that contains the pack version to install, such as a
       .tool-versions file (the `pack <version>` entry is read) or a plain
-      file like .pack-version (the first non-comment line is read). When set,
-      it takes precedence over pack-version.
+      file like .pack-version (the first non-comment line is read). Used only
+      when pack-version is not set.
     required:    false
 
 runs:
@@ -22,16 +25,22 @@ runs:
     id:    resolve
     shell: bash
     env:
-      PACK_VERSION:      ${{ inputs.pack-version }}
-      PACK_VERSION_FILE: ${{ inputs.pack-version-file }}
+      PACK_VERSION:          ${{ inputs.pack-version }}
+      PACK_VERSION_FILE:     ${{ inputs.pack-version-file }}
+      # Fallback pack version, used only when neither pack-version nor
+      # pack-version-file is set. Kept current by the update-pack-version
+      # workflow (which rewrites the value below).
+      FALLBACK_PACK_VERSION: '0.40.7'
     run:   |
            #!/usr/bin/env bash
 
            set -euo pipefail
 
-           version="${PACK_VERSION}"
-
-           if [ -n "${PACK_VERSION_FILE}" ]; then
+           if [ -n "${PACK_VERSION}" ]; then
+             # An explicit pack-version always wins, even if pack-version-file is
+             # also set (matches setup-go's go-version vs go-version-file rule).
+             version="${PACK_VERSION}"
+           elif [ -n "${PACK_VERSION_FILE}" ]; then
              if [ ! -f "${PACK_VERSION_FILE}" ]; then
                echo "::error::pack-version-file '${PACK_VERSION_FILE}' does not exist"
                exit 1
@@ -43,8 +52,9 @@ runs:
                  version="$(grep -E '^pack[[:space:]]+' "${PACK_VERSION_FILE}" | head -n1 | awk '{print $2}')"
                  ;;
                *)
-                 # Plain version file: first non-empty, non-comment line
-                 version="$(grep -vE '^[[:space:]]*(#|$)' "${PACK_VERSION_FILE}" | head -n1 | tr -d '[:space:]')"
+                 # Plain version file: first non-empty, non-comment line, with
+                 # any inline trailing comment (e.g. `0.40.6 # pinned`) stripped.
+                 version="$(grep -vE '^[[:space:]]*(#|$)' "${PACK_VERSION_FILE}" | head -n1 | sed 's/#.*//' | tr -d '[:space:]')"
                  ;;
              esac
 
@@ -56,6 +66,8 @@ runs:
              # Tolerate an optional leading `v` in the file (e.g. `v0.40.6`).
              version="${version#v}"
              echo "Resolved pack version '${version}' from '${PACK_VERSION_FILE}'"
+           else
+             version="${FALLBACK_PACK_VERSION}"
            fi
 
            echo "version=${version}" >> "${GITHUB_OUTPUT}"
