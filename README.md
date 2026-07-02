@@ -234,7 +234,7 @@ the action warns and proceeds.
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `pack-version` | Optional version of [`pack`][pack] to install. Takes precedence over `pack-version-file` when both are set. Defaults to a pinned fallback version.
+| `pack-version` | Optional version of [`pack`][pack] to install. Takes precedence over `pack-version-file` when both are set. Defaults to a pinned version.
 | `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Used only when `pack-version` is not set.
 
 ## Setup Tools Action
