@@ -211,10 +211,27 @@ The `setup-pack` action adds [`pack`][pack] to the environment.
 uses: buildpacks/github-actions/setup-pack@vX.Y.Z
 ```
 
+The version can also be kept in a file and referenced with the
+`pack-version-file` input. Both a `.tool-versions` file (the `pack` entry is
+read) and a plain version file like `.pack-version` are supported. When both
+`pack-version` and `pack-version-file` are set, `pack-version` takes precedence.
+When neither is set, a pinned default version is used.
+
+```yaml
+uses: buildpacks/github-actions/setup-pack@vX.Y.Z
+with:
+  pack-version-file: '.tool-versions'
+```
+
+The downloaded archive is verified against the release's published
+`<asset>.sha256` checksum before extraction. If the checksum cannot be fetched,
+the action warns and proceeds.
+
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `pack-version` | Optional version of [`pack`][pack] to install. Defaults to latest release.
+| `pack-version` | Optional version of [`pack`][pack] to install. Takes precedence over `pack-version-file` when both are set. Defaults to a pinned version.
+| `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Used only when `pack-version` is not set.
 
 ## Setup Tools Action
 The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
