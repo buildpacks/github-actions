@@ -214,12 +214,8 @@ uses: buildpacks/github-actions/setup-pack@vX.Y.Z
 The version can also be kept in a file and referenced with the
 `pack-version-file` input. Both a `.tool-versions` file (the `pack` entry is
 read) and a plain version file like `.pack-version` are supported. When both
-`pack-version` and `pack-version-file` are set, `pack-version` takes precedence
-(matching the [`setup-go`][setup-go-version-file] `go-version` /
-`go-version-file` convention). When neither is set, a pinned fallback version
-is used.
-
-[setup-go-version-file]: https://github.com/actions/setup-go/blob/main/docs/advanced-usage.md#using-the-go-version-file-input
+`pack-version` and `pack-version-file` are set, `pack-version` takes precedence.
+When neither is set, a pinned default version is used.
 
 ```yaml
 uses: buildpacks/github-actions/setup-pack@vX.Y.Z
