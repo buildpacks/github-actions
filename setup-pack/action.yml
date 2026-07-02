@@ -48,13 +48,17 @@ runs:
 
              case "$(basename "${PACK_VERSION_FILE}")" in
                .tool-versions)
-                 # asdf/mise format, e.g. `pack 0.40.6` (extra fields and comments are ignored)
-                 version="$(grep -E '^pack[[:space:]]+' "${PACK_VERSION_FILE}" | head -n1 | awk '{print $2}')"
+                 # asdf/mise format, e.g. `pack 0.40.6` (extra fields and comments are ignored).
+                 # awk (not grep|head) so a file with no `pack` entry yields an empty
+                 # version and reaches the guard below instead of aborting under pipefail.
+                 version="$(awk '$1 == "pack" { print $2; exit }' "${PACK_VERSION_FILE}")"
                  ;;
                *)
                  # Plain version file: first non-empty, non-comment line, with
                  # any inline trailing comment (e.g. `0.40.6 # pinned`) stripped.
-                 version="$(grep -vE '^[[:space:]]*(#|$)' "${PACK_VERSION_FILE}" | head -n1 | sed 's/#.*//' | tr -d '[:space:]')"
+                 # `|| true` so an all-comment/empty file yields an empty version
+                 # and reaches the guard below instead of aborting under pipefail.
+                 version="$(grep -vE '^[[:space:]]*(#|$)' "${PACK_VERSION_FILE}" | head -n1 | sed 's/#.*//' | tr -d '[:space:]')" || true
                  ;;
              esac
 
