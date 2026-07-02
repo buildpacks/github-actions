@@ -6,9 +6,8 @@ inputs:
   pack-version:
     description: >-
       The version of pack to install. When both pack-version and
-      pack-version-file are set, pack-version takes precedence (matching the
-      setup-go go-version/go-version-file convention). When neither is set, a
-      pinned fallback version is used.
+      pack-version-file are set, pack-version takes precedence. When neither is
+      set, a pinned default version is used.
     required:    false
   pack-version-file:
     description: >-
