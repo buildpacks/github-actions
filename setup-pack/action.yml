@@ -27,10 +27,10 @@ runs:
     env:
       PACK_VERSION:          ${{ inputs.pack-version }}
       PACK_VERSION_FILE:     ${{ inputs.pack-version-file }}
-      # Fallback pack version, used only when neither pack-version nor
+      # Default pack version, used only when neither pack-version nor
       # pack-version-file is set. Kept current by the update-pack-version
       # workflow (which rewrites the value below).
-      FALLBACK_PACK_VERSION: '0.40.7'
+      DEFAULT_PACK_VERSION: '0.40.7'
     run:   |
            #!/usr/bin/env bash
 
@@ -71,7 +71,7 @@ runs:
              version="${version#v}"
              echo "Resolved pack version '${version}' from '${PACK_VERSION_FILE}'"
            else
-             version="${FALLBACK_PACK_VERSION}"
+             version="${DEFAULT_PACK_VERSION}"
            fi
 
            echo "version=${version}" >> "${GITHUB_OUTPUT}"
