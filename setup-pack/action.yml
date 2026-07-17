@@ -16,10 +16,6 @@ inputs:
       file like .pack-version (the first non-comment line is read). Used only
       when pack-version is not set.
     required:    false
-<<<<<<< feat/setup-pack-version-file-checksum
-=======
-    default:     '0.40.8'
->>>>>>> main
 
 runs:
   using: "composite"
@@ -33,7 +29,7 @@ runs:
       # Default pack version, used only when neither pack-version nor
       # pack-version-file is set. Kept current by the update-pack-version
       # workflow (which rewrites the value below).
-      DEFAULT_PACK_VERSION: '0.40.7'
+      DEFAULT_PACK_VERSION: '0.40.8'
     run:   |
            #!/usr/bin/env bash
 
