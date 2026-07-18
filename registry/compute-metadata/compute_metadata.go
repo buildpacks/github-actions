@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v39/github"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"

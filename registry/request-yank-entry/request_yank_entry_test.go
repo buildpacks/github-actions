@@ -22,7 +22,7 @@ import (
 
 	"github.com/google/go-github/v39/github"
 	. "github.com/onsi/gomega"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +31,7 @@ import (
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
 	"github.com/buildpacks/github-actions/registry/internal/services"
-	"github.com/buildpacks/github-actions/registry/request-yank-entry"
+	entry "github.com/buildpacks/github-actions/registry/request-yank-entry"
 )
 
 func TestRequestYankEntry(t *testing.T) {
@@ -80,6 +80,5 @@ func TestRequestYankEntry(t *testing.T) {
 			Expect(entry.RequestYankEntry(tk, i, s)).
 				To(MatchError("::error ::Registry request test-html-url failed"))
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

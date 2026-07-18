@@ -7,7 +7,7 @@ require (
 	github.com/google/go-containerregistry v0.21.7
 	github.com/google/go-github/v39 v39.2.0
 	github.com/onsi/gomega v1.42.1
-	github.com/pelletier/go-toml v1.9.5
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.36.0
