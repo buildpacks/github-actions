@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/pelletier/go-toml/v2"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"

@@ -19,7 +19,7 @@ package services
 import (
 	"context"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 )
 
 //go:generate mockery --all  --inpackage --case=underscore

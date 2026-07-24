@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
@@ -137,10 +137,10 @@ func getNamespace(tk toolkit.Toolkit, c config, user github.User, repositories s
 			tk.Debugf("creating new namespace: %s\n%s", file, b)
 			if _, resp, err := repositories.CreateFile(context.Background(), c.Owner, c.Repository, file, &github.RepositoryContentFileOptions{
 				Author: &github.CommitAuthor{
-					Name:  github.String("buildpacks-bot"),
-					Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+					Name:  github.Ptr("buildpacks-bot"),
+					Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 				},
-				Message: github.String(fmt.Sprintf("New Namespace: %s", c.Namespace)),
+				Message: github.Ptr(fmt.Sprintf("New Namespace: %s", c.Namespace)),
 				Content: b,
 			}); resp != nil && resp.StatusCode == http.StatusConflict {
 				tk.Warningf("retrying namespace update after conflict: %s", file)
