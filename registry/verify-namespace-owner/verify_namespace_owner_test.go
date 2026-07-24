@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -61,7 +61,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			tk.On("GetInput", "repository").Return("test-repository", true)
 			tk.On("GetInput", "namespace").Return("test-namespace", true)
 			tk.On("GetInput", "user").
-				Return(asJSONString(github.User{ID: github.Int64(1), Login: github.String("test-user")}), true)
+				Return(asJSONString(github.User{ID: github.Ptr(int64(1)), Login: github.Ptr("test-user")}), true)
 		})
 
 		context("unknown namespace", func() {
@@ -91,20 +91,20 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
+						Content: github.Ptr(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
 				c := asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})
 
 				r.On("CreateFile", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), &github.RepositoryContentFileOptions{
 					Author: &github.CommitAuthor{
-						Name:  github.String("buildpacks-bot"),
-						Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+						Name:  github.Ptr("buildpacks-bot"),
+						Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 					},
-					Message: github.String("New Namespace: test-namespace"),
+					Message: github.Ptr("New Namespace: test-namespace"),
 					Content: []byte(c),
 				}).Return(&github.RepositoryContentResponse{
-					Content: &github.RepositoryContent{Content: github.String(c)},
+					Content: &github.RepositoryContent{Content: github.Ptr(c)},
 				}, nil, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
@@ -112,7 +112,6 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 		})
 
 		context("user-owned namespace", func() {
-
 			it.Before(func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
 				tk.On("GetInputList", "blocked_namespaces").Return([]string{"test-owner"}, false)
@@ -123,7 +122,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it("fails if user does not own", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 2, Type: namespace.UserType}}})),
+						Content: github.Ptr(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 2, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).
@@ -133,7 +132,7 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 			it("succeeds if user does own", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
+						Content: github.Ptr(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.UserType}}})),
 					}, nil, nil, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
@@ -141,13 +140,12 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 		})
 
 		context("organization-owned namespace", func() {
-
 			it.Before(func() {
 				tk.On("GetInput", "add-if-missing").Return("", false)
 				tk.On("GetInputList", "blocked_namespaces").Return([]string{""}, false)
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("v1", "test-namespace.json"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.OrganizationType}}})),
+						Content: github.Ptr(asJSONString(namespace.Namespace{Owners: []namespace.Owner{{ID: 1, Type: namespace.OrganizationType}}})),
 					}, nil, nil, nil)
 			})
 
@@ -161,12 +159,10 @@ func TestVerifyNamespaceOwner(t *testing.T) {
 
 			it("succeeds if user does own", func() {
 				o.On("List", mock.Anything, "test-user", mock.Anything).
-					Return([]*github.Organization{{ID: github.Int64(1)}}, &github.Response{}, nil)
+					Return([]*github.Organization{{ID: github.Ptr(int64(1))}}, &github.Response{}, nil)
 
 				Expect(owner.VerifyNamespaceOwner(tk, o, r, s)).To(Succeed())
 			})
-
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

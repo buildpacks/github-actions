@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
@@ -57,7 +57,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when id is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(fmt.Sprintf("```\n%s\n```", asTOMLString(index.Request{
+				Body: github.Ptr(fmt.Sprintf("```\n%s\n```", asTOMLString(index.Request{
 					ID: "test@namespace/test-name",
 				}))),
 			}), true)
@@ -67,7 +67,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error if namespace is restricted", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(index.Request{
+				Body: github.Ptr(asTOMLString(index.Request{
 					ID: "cnb/test-name",
 				})),
 			}), true)
@@ -77,7 +77,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when version is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(fmt.Sprintf("```\n%s\n```", asTOMLString(index.Request{
+				Body: github.Ptr(fmt.Sprintf("```\n%s\n```", asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
 					Version: "test-version",
 				}))),
@@ -88,7 +88,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("returns error when yank is false and address is invalid", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(index.Request{
+				Body: github.Ptr(asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
 					Version: "0.0.0",
 					Address: "host.com:443/repository/image:tag",
@@ -100,7 +100,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("computes metadata when yank is false", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(index.Request{
+				Body: github.Ptr(asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
 					Version: "0.0.0",
 					Address: "host.com:443/repository/image@sha256:133f2117e15569ca59645eddad78f4a6a675c435f9614e4b137364274f3a7614",
@@ -117,7 +117,7 @@ func TestComputeMetadata(t *testing.T) {
 
 		it("computes metadata when yank is true", func() {
 			tk.On("GetInput", "issue").Return(asJSONString(github.Issue{
-				Body: github.String(asTOMLString(index.Request{
+				Body: github.Ptr(asTOMLString(index.Request{
 					ID:      "test-namespace/test-name",
 					Version: "0.0.0",
 					Yank:    true,

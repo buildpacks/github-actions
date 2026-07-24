@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
@@ -56,17 +56,17 @@ func TestRequestYankEntry(t *testing.T) {
 			Expect(err).NotTo(HaveOccurred())
 
 			i.On("Create", mock.Anything, "buildpacks", "registry-index", &github.IssueRequest{
-				Title: github.String("YANK test-namespace/test-name@test-version"),
-				Body:  github.String(fmt.Sprintf("```\n%s\n```", string(b))),
+				Title: github.Ptr("YANK test-namespace/test-name@test-version"),
+				Body:  github.Ptr(fmt.Sprintf("```\n%s\n```", string(b))),
 			}).Return(&github.Issue{
-				Number:  github.Int(1),
-				HTMLURL: github.String("test-html-url"),
+				Number:  github.Ptr(1),
+				HTMLURL: github.Ptr("test-html-url"),
 			}, nil, nil)
 		})
 
 		it("yank entry succeeds", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}},
+				Labels: []*github.Label{{Name: github.Ptr(index.RequestSuccessLabel)}},
 			}, nil, nil)
 
 			Expect(entry.RequestYankEntry(tk, i, s)).To(Succeed())
@@ -74,7 +74,7 @@ func TestRequestYankEntry(t *testing.T) {
 
 		it("yank entry fails", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(index.RequestFailureLabel)}},
+				Labels: []*github.Label{{Name: github.Ptr(index.RequestFailureLabel)}},
 			}, nil, nil)
 
 			Expect(entry.RequestYankEntry(tk, i, s)).

@@ -19,7 +19,7 @@ package index_test
 import (
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -43,14 +43,14 @@ func TestWaitForCompletion(t *testing.T) {
 
 		it("it handles success", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).
-				Return(&github.Issue{Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}}}, nil, nil)
+				Return(&github.Issue{Labels: []*github.Label{{Name: github.Ptr(index.RequestSuccessLabel)}}}, nil, nil)
 
 			Expect(index.WaitForCompletion(1, "test-url", tk, i, s)).To(Succeed())
 		})
 
 		it("it handles failure", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).
-				Return(&github.Issue{Labels: []*github.Label{{Name: github.String(index.RequestFailureLabel)}}}, nil, nil)
+				Return(&github.Issue{Labels: []*github.Label{{Name: github.Ptr(index.RequestFailureLabel)}}}, nil, nil)
 
 			Expect(index.WaitForCompletion(1, "test-url", tk, i, s)).
 				To(MatchError("::error ::Registry request test-url failed"))
@@ -61,10 +61,9 @@ func TestWaitForCompletion(t *testing.T) {
 				Return(&github.Issue{}, nil, nil).
 				Once()
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).
-				Return(&github.Issue{Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}}}, nil, nil)
+				Return(&github.Issue{Labels: []*github.Label{{Name: github.Ptr(index.RequestSuccessLabel)}}}, nil, nil)
 
 			Expect(index.WaitForCompletion(1, "test-url", tk, i, s)).To(Succeed())
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/pelletier/go-toml/v2"
 	"gopkg.in/retry.v1"
 
@@ -45,8 +45,8 @@ func RequestYankEntry(tk toolkit.Toolkit, issues services.IssuesService, strateg
 	}
 
 	req := &github.IssueRequest{
-		Title: github.String(fmt.Sprintf("YANK %s@%s", c.ID, c.Version)),
-		Body:  github.String(fmt.Sprintf("```\n%s\n```", string(body))),
+		Title: github.Ptr(fmt.Sprintf("YANK %s@%s", c.ID, c.Version)),
+		Body:  github.Ptr(fmt.Sprintf("```\n%s\n```", string(body))),
 	}
 
 	issue, _, err := issues.Create(context.Background(), "buildpacks", "registry-index", req)
