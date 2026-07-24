@@ -12,3 +12,15 @@ updates:
         update-types:
           - "minor"
           - "patch"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - semver:patch
+      - type:dependency-upgrade
+    groups:
+      github-actions:
+        update-types:
+          - "minor"
+          - "patch"
