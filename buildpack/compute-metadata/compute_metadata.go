@@ -21,7 +21,7 @@ import (
 	"io/ioutil"
 
 	"github.com/buildpacks/libcnb"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
 )

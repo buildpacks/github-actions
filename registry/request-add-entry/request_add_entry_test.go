@@ -22,7 +22,7 @@ import (
 
 	"github.com/google/go-github/v39/github"
 	. "github.com/onsi/gomega"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +31,7 @@ import (
 	"github.com/buildpacks/github-actions/internal/toolkit"
 	"github.com/buildpacks/github-actions/registry/internal/index"
 	"github.com/buildpacks/github-actions/registry/internal/services"
-	"github.com/buildpacks/github-actions/registry/request-add-entry"
+	entry "github.com/buildpacks/github-actions/registry/request-add-entry"
 )
 
 func TestRequestAddEntry(t *testing.T) {
@@ -81,6 +81,5 @@ func TestRequestAddEntry(t *testing.T) {
 			Expect(entry.RequestAddEntry(tk, i, s)).
 				To(MatchError("::error ::Registry request test-html-url failed"))
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

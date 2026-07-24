@@ -23,12 +23,12 @@ import (
 
 	"github.com/google/go-github/v39/github"
 	. "github.com/onsi/gomega"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
-	"github.com/buildpacks/github-actions/registry/compute-metadata"
+	metadata "github.com/buildpacks/github-actions/registry/compute-metadata"
 	"github.com/buildpacks/github-actions/registry/internal/index"
 )
 
@@ -130,6 +130,5 @@ func TestComputeMetadata(t *testing.T) {
 
 			Expect(metadata.ComputeMetadata(tk)).To(Succeed())
 		})
-
 	}, spec.Report(report.Terminal{}))
 }
