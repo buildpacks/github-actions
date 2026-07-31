@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -73,10 +73,10 @@ func TestAddEntry(t *testing.T) {
 			it("creates new index", func() {
 				r.On("CreateFile", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), &github.RepositoryContentFileOptions{
 					Author: &github.CommitAuthor{
-						Name:  github.String("buildpacks-bot"),
-						Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+						Name:  github.Ptr("buildpacks-bot"),
+						Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 					},
-					Message: github.String("ADD test-namespace/test-name@test-version"),
+					Message: github.Ptr("ADD test-namespace/test-name@test-version"),
 					Content: []byte(fmt.Sprintf("%s\n", asJSONString(index.Entry{
 						Namespace: "test-namespace",
 						Name:      "test-name",
@@ -91,17 +91,16 @@ func TestAddEntry(t *testing.T) {
 		})
 
 		context("index does exist", func() {
-
 			it("fails if version already exists", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(index.Entry{
+						Content: github.Ptr(asJSONString(index.Entry{
 							Namespace: "test-namespace",
 							Name:      "test-name",
 							Version:   "test-version",
 							Address:   "test-address",
 						})),
-						SHA: github.String("test-sha"),
+						SHA: github.Ptr("test-sha"),
 					}, nil, nil, nil)
 
 				Expect(entry.AddEntry(tk, r, s)).
@@ -111,22 +110,23 @@ func TestAddEntry(t *testing.T) {
 			it("adds entry to index", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(index.Entry{
+						Content: github.Ptr(asJSONString(index.Entry{
 							Namespace: "another-namespace",
 							Name:      "test-name",
 							Version:   "test-version",
 							Address:   "test-address",
 						})),
-						SHA: github.String("test-sha"),
+						SHA: github.Ptr("test-sha"),
 					}, nil, nil, nil)
 
 				r.On("CreateFile", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), &github.RepositoryContentFileOptions{
 					Author: &github.CommitAuthor{
-						Name:  github.String("buildpacks-bot"),
-						Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+						Name:  github.Ptr("buildpacks-bot"),
+						Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 					},
-					Message: github.String("ADD test-namespace/test-name@test-version"),
-					Content: []byte(fmt.Sprintf("%s\n%s\n",
+					Message: github.Ptr("ADD test-namespace/test-name@test-version"),
+					Content: []byte(fmt.Sprintf(
+						"%s\n%s\n",
 						asJSONString(index.Entry{
 							Namespace: "another-namespace",
 							Name:      "test-name",
@@ -140,14 +140,12 @@ func TestAddEntry(t *testing.T) {
 							Address:   "test-address",
 						}),
 					)),
-					SHA: github.String("test-sha"),
+					SHA: github.Ptr("test-sha"),
 				}).
 					Return(nil, nil, nil)
 
 				Expect(entry.AddEntry(tk, r, s)).To(Succeed())
 			})
-
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

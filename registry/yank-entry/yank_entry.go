@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
@@ -69,10 +69,10 @@ func YankEntry(tk toolkit.Toolkit, repositories services.RepositoriesService, st
 
 		if _, resp, err := repositories.CreateFile(context.Background(), c.Owner, c.Repository, file, &github.RepositoryContentFileOptions{
 			Author: &github.CommitAuthor{
-				Name:  github.String("buildpacks-bot"),
-				Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+				Name:  github.Ptr("buildpacks-bot"),
+				Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 			},
-			Message: github.String(fmt.Sprintf("YANK %s/%s@%s", c.Namespace, c.Name, c.Version)),
+			Message: github.Ptr(fmt.Sprintf("YANK %s/%s@%s", c.Namespace, c.Name, c.Version)),
 			SHA:     content.SHA,
 			Content: []byte(s),
 		}); resp != nil && resp.StatusCode == http.StatusConflict {
