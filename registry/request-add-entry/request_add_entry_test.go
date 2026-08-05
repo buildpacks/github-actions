@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sclevine/spec"
@@ -57,17 +57,17 @@ func TestRequestAddEntry(t *testing.T) {
 			Expect(err).NotTo(HaveOccurred())
 
 			i.On("Create", mock.Anything, "buildpacks", "registry-index", &github.IssueRequest{
-				Title: github.String("ADD test-namespace/test-name@test-version"),
-				Body:  github.String(fmt.Sprintf("```\n%s\n```", string(b))),
+				Title: github.Ptr("ADD test-namespace/test-name@test-version"),
+				Body:  github.Ptr(fmt.Sprintf("```\n%s\n```", string(b))),
 			}).Return(&github.Issue{
-				Number:  github.Int(1),
-				HTMLURL: github.String("test-html-url"),
+				Number:  github.Ptr(1),
+				HTMLURL: github.Ptr("test-html-url"),
 			}, nil, nil)
 		})
 
 		it("add entry succeeds", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(index.RequestSuccessLabel)}},
+				Labels: []*github.Label{{Name: github.Ptr(index.RequestSuccessLabel)}},
 			}, nil, nil)
 
 			Expect(entry.RequestAddEntry(tk, i, s)).To(Succeed())
@@ -75,7 +75,7 @@ func TestRequestAddEntry(t *testing.T) {
 
 		it("add entry fails", func() {
 			i.On("Get", mock.Anything, "buildpacks", "registry-index", 1).Return(&github.Issue{
-				Labels: []*github.Label{{Name: github.String(index.RequestFailureLabel)}},
+				Labels: []*github.Label{{Name: github.Ptr(index.RequestFailureLabel)}},
 			}, nil, nil)
 
 			Expect(entry.RequestAddEntry(tk, i, s)).

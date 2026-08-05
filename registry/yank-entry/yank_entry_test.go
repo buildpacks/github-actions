@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v89/github"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -61,7 +61,6 @@ func TestYankEntry(t *testing.T) {
 			tk.On("GetInput", "namespace").Return("test-namespace", true)
 			tk.On("GetInput", "name").Return("test-name", true)
 			tk.On("GetInput", "version").Return("test-version", true)
-
 		})
 
 		context("index does not exist", func() {
@@ -77,17 +76,16 @@ func TestYankEntry(t *testing.T) {
 		})
 
 		context("index does exist", func() {
-
 			it("fails if version does not exist", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(index.Entry{
+						Content: github.Ptr(asJSONString(index.Entry{
 							Namespace: "test-namespace",
 							Name:      "test-name",
 							Version:   "another-version",
 							Address:   "test-address",
 						})),
-						SHA: github.String("test-sha"),
+						SHA: github.Ptr("test-sha"),
 					}, nil, nil, nil)
 
 				Expect(entry.YankEntry(tk, r, s)).
@@ -97,22 +95,23 @@ func TestYankEntry(t *testing.T) {
 			it("adds entry to index", func() {
 				r.On("GetContents", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), rOpts).
 					Return(&github.RepositoryContent{
-						Content: github.String(asJSONString(index.Entry{
+						Content: github.Ptr(asJSONString(index.Entry{
 							Namespace: "test-namespace",
 							Name:      "test-name",
 							Version:   "test-version",
 							Address:   "test-address",
 						})),
-						SHA: github.String("test-sha"),
+						SHA: github.Ptr("test-sha"),
 					}, nil, nil, nil)
 
 				r.On("CreateFile", mock.Anything, "test-owner", "test-repository", filepath.Join("te", "st", "test-namespace_test-name"), &github.RepositoryContentFileOptions{
 					Author: &github.CommitAuthor{
-						Name:  github.String("buildpacks-bot"),
-						Email: github.String("cncf-buildpacks-maintainers@lists.cncf.io"),
+						Name:  github.Ptr("buildpacks-bot"),
+						Email: github.Ptr("cncf-buildpacks-maintainers@lists.cncf.io"),
 					},
-					Message: github.String("YANK test-namespace/test-name@test-version"),
-					Content: []byte(fmt.Sprintf("%s\n",
+					Message: github.Ptr("YANK test-namespace/test-name@test-version"),
+					Content: []byte(fmt.Sprintf(
+						"%s\n",
 						asJSONString(index.Entry{
 							Namespace: "test-namespace",
 							Name:      "test-name",
@@ -121,14 +120,12 @@ func TestYankEntry(t *testing.T) {
 							Yanked:    true,
 						}),
 					)),
-					SHA: github.String("test-sha"),
+					SHA: github.Ptr("test-sha"),
 				}).
 					Return(nil, nil, nil)
 
 				Expect(entry.YankEntry(tk, r, s)).To(Succeed())
 			})
-
 		})
-
 	}, spec.Report(report.Terminal{}))
 }

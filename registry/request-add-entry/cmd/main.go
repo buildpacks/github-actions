@@ -17,13 +17,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/google/go-github/v39/github"
-	"golang.org/x/oauth2"
+	"github.com/google/go-github/v89/github"
 	"gopkg.in/retry.v1"
 
 	"github.com/buildpacks/github-actions/internal/toolkit"
@@ -39,9 +37,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	gh := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t})))
+	gh, err := github.NewClient(github.WithAuthToken(t))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-	strategy := retry.LimitTime(20*time.Minute,
+	strategy := retry.LimitTime(
+		20*time.Minute,
 		retry.Exponential{
 			Initial:  time.Second,
 			MaxDelay: 30 * time.Second,
