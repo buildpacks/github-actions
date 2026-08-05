@@ -99,39 +99,40 @@ runs:
            TMP="$(mktemp -d)"
            trap 'rm -rf "${TMP}"' EXIT
 
+           # --retry-all-errors so failures like "curl: (35) Recv failure: Connection reset by peer" are retried,
+           # since --retry-connrefused only retries ECONNREFUSED, not resets/recv failures/TLS errors.
            curl \
-             --show-error \
-             --silent \
+             --no-progress-meter \
              --location \
              --fail \
-             --retry 3 \
+             --retry 5 \
+             --retry-all-errors \
+             --retry-max-time 120 \
              --connect-timeout 5 \
              --max-time 60 \
              --output "${TMP}/${ASSET}" \
              "${BASE_URL}/${ASSET}"
 
            # Verify the download against the release's published SHA256 checksum.
-           # Each asset is published with a sibling <asset>.sha256 file. If it
-           # cannot be fetched (e.g. a mirror that does not host it), warn and
-           # proceed so existing setups are not broken.
-           if EXPECTED="$(curl \
-                 --show-error \
-                 --silent \
-                 --location \
-                 --fail \
-                 --retry 3 \
-                 --connect-timeout 5 \
-                 --max-time 60 \
-                 "${BASE_URL}/${ASSET}.sha256" | awk '{print $1}')" \
-              && [ -n "${EXPECTED}" ]; then
-             ACTUAL="$(sha256sum "${TMP}/${ASSET}" | awk '{print $1}')"
-             if [ "${EXPECTED}" != "${ACTUAL}" ]; then
-               echo "::error::checksum mismatch for ${ASSET} (expected ${EXPECTED}, got ${ACTUAL})"
-               exit 1
-             fi
-             echo "Verified ${ASSET} against the published SHA256 checksum"
-           else
-             echo "::warning::could not fetch ${ASSET}.sha256; skipping checksum verification"
+           # Each asset is published with a sibling <asset>.sha256 file.
+           curl \
+             --no-progress-meter \
+             --location \
+             --fail \
+             --retry 5 \
+             --retry-all-errors \
+             --retry-max-time 120 \
+             --connect-timeout 5 \
+             --max-time 60 \
+             --output "${TMP}/${ASSET}.sha256" \
+             "${BASE_URL}/${ASSET}.sha256"
+
+           EXPECTED="$(awk '{print $1}' "${TMP}/${ASSET}.sha256")"
+           ACTUAL="$(sha256sum "${TMP}/${ASSET}" | awk '{print $1}')"
+           if [ "${EXPECTED}" != "${ACTUAL}" ]; then
+             echo "::error::checksum mismatch for ${ASSET} (expected ${EXPECTED}, got ${ACTUAL})"
+             exit 1
            fi
+           echo "Verified ${ASSET} against the published SHA256 checksum"
 
            tar -C "${HOME}/bin" -xzf "${TMP}/${ASSET}" pack
