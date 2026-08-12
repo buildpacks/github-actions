@@ -20,7 +20,7 @@ jobs:
         run: |
             sed -i "s/DEFAULT_PACK_VERSION: '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}'/DEFAULT_PACK_VERSION: '${{ steps.version.outputs.new_version }}'/" setup-pack/action.yml
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.DISTRIBUTION_GITHUB_TOKEN }}
           commit-message: Update default Pack version to v${{ steps.version.outputs.new_version }}
