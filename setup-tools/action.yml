@@ -1,5 +1,5 @@
 name:        'Setup tools'
-description: 'Install the tools crane and yq, and add them to $PATH'
+description: 'Install the tools crane and yj, and add them to $PATH'
 author:      'Cloud Native Buildpacks'
 
 inputs:
