@@ -234,7 +234,7 @@ the action warns and proceeds.
 | `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Used only when `pack-version` is not set.
 
 ## Setup Tools Action
-The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
+The `setup-tools` action adds [`crane`][crane] and [`yj`][yj] to the environment.
 
 [crane]: https://github.com/google/go-containerregistry/tree/main/cmd/crane
 [yj]:    https://github.com/sclevine/yj
