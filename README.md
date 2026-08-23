@@ -236,7 +236,7 @@ the action warns and proceeds.
 ## Setup Tools Action
 The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
 
-[crane]: https://github.com/google/go-containerregistry/tree/master/cmd/crane
+[crane]: https://github.com/google/go-containerregistry/tree/main/cmd/crane
 [yj]:    https://github.com/sclevine/yj
 
 ```yaml
