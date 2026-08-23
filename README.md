@@ -246,7 +246,7 @@ uses: buildpacks/github-actions/setup-tools@vX.Y.Z
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to `0.12.1`.
+| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to `0.19.1`.
 | `yj-version` | Optional version of [`yj`][yj] to install. Defaults to `5.1.0`.
 
 ## License
