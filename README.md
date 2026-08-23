@@ -234,9 +234,9 @@ the action warns and proceeds.
 | `pack-version-file` | Optional path to a file (`.tool-versions` or a plain version file) holding the [`pack`][pack] version. Used only when `pack-version` is not set.
 
 ## Setup Tools Action
-The `setup-tools` action adds [crane][crane] and [`yj`][yj] to the environment.
+The `setup-tools` action adds [`crane`][crane] and [`yj`][yj] to the environment.
 
-[crane]: https://github.com/google/go-containerregistry/tree/master/cmd/crane
+[crane]: https://github.com/google/go-containerregistry/tree/main/cmd/crane
 [yj]:    https://github.com/sclevine/yj
 
 ```yaml
@@ -246,7 +246,7 @@ uses: buildpacks/github-actions/setup-tools@vX.Y.Z
 #### Inputs <!-- omit in toc -->
 | Parameter | Description
 | :-------- | :----------
-| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to `0.12.1`.
+| `crane-version` | Optional version of [`crane`][crane] to install. Defaults to `0.19.1`.
 | `yj-version` | Optional version of [`yj`][yj] to install. Defaults to `5.1.0`.
 
 ## License
