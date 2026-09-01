@@ -4,9 +4,9 @@ go 1.26
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
-	github.com/google/go-containerregistry v0.21.9
+	github.com/google/go-containerregistry v0.22.0
 	github.com/google/go-github/v89 v89.0.0
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/gomega v1.43.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.12.1
