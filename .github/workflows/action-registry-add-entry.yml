@@ -2,6 +2,10 @@ name: Action registry-add-entry
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-add-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/add-entry/**
     - registry/internal/**
@@ -10,6 +14,10 @@ name: Action registry-add-entry
     - main
     - test
     paths:
+    - .github/workflows/action-registry-add-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/add-entry/**
     - registry/internal/**

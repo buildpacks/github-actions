@@ -2,17 +2,25 @@ name: Action registry-yank-entry
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
-    - registry/yank-entry/**
     - registry/internal/**
+    - registry/yank-entry/**
   push:
     branches:
     - main
     - test
     paths:
+    - .github/workflows/action-registry-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
-    - registry/yank-entry/**
     - registry/internal/**
+    - registry/yank-entry/**
   release:
     types:
     - published

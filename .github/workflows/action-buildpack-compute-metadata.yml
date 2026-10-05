@@ -2,14 +2,22 @@ name: Action buildpack-compute-metadata
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-buildpack-compute-metadata.yml
     - buildpack/compute-metadata/**
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
   push:
     branches:
     - main
     - test
     paths:
+    - .github/workflows/action-buildpack-compute-metadata.yml
     - buildpack/compute-metadata/**
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
   release:
     types:

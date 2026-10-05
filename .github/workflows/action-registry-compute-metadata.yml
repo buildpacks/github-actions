@@ -2,6 +2,10 @@ name: Action registry-compute-metadata
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-compute-metadata.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/compute-metadata/**
     - registry/internal/**
@@ -10,6 +14,10 @@ name: Action registry-compute-metadata
     - main
     - test
     paths:
+    - .github/workflows/action-registry-compute-metadata.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/compute-metadata/**
     - registry/internal/**

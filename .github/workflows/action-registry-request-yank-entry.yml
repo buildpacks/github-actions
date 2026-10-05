@@ -2,6 +2,10 @@ name: Action registry-request-yank-entry
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-request-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-yank-entry/**
@@ -10,6 +14,10 @@ name: Action registry-request-yank-entry
     - main
     - test
     paths:
+    - .github/workflows/action-registry-request-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-yank-entry/**
