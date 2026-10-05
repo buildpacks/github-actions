@@ -1,5 +1,8 @@
 module github.com/buildpacks/github-actions
 
+// This must use the full `1.N.0` form, since that's what Go's tooling (and so Dependabot)
+// rewrites it to. The GitHub Actions workflows use only the major.minor from this line for
+// `setup-go` and the `golang` image tag, so that they get the latest patch release.
 go 1.26.0
 
 require (
