@@ -2,6 +2,10 @@ name: Action registry-verify-namespace-owner
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-verify-namespace-owner.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/verify-namespace-owner/**
@@ -10,6 +14,10 @@ name: Action registry-verify-namespace-owner
     - main
     - test
     paths:
+    - .github/workflows/action-registry-verify-namespace-owner.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/verify-namespace-owner/**
@@ -60,6 +68,7 @@ jobs:
               docker build \
                 --file Dockerfile \
                 --build-arg "SOURCE=${SOURCE}" \
+                --build-arg "GO_VERSION=$(sed -nE 's/^go ([0-9]+\.[0-9]+).*/\1/p' go.mod)" \
                 --tag "${TARGET}:${VERSION}" \
                 .
             echo "::endgroup::"

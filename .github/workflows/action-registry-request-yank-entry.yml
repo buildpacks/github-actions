@@ -2,6 +2,10 @@ name: Action registry-request-yank-entry
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-request-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-yank-entry/**
@@ -10,6 +14,10 @@ name: Action registry-request-yank-entry
     - main
     - test
     paths:
+    - .github/workflows/action-registry-request-yank-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-yank-entry/**
@@ -60,6 +68,7 @@ jobs:
               docker build \
                 --file Dockerfile \
                 --build-arg "SOURCE=${SOURCE}" \
+                --build-arg "GO_VERSION=$(sed -nE 's/^go ([0-9]+\.[0-9]+).*/\1/p' go.mod)" \
                 --tag "${TARGET}:${VERSION}" \
                 .
             echo "::endgroup::"

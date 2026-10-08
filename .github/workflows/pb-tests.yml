@@ -21,9 +21,14 @@ jobs:
                 key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
                 path: ${{ env.HOME }}/go/pkg/mod
                 restore-keys: ${{ runner.os }}-go-
+            # Uses only the major.minor from `go.mod`, since setup-go would otherwise install the
+            # exact (and often outdated) patch version in the `go` directive, such as `1.27.0`.
+            - id: go-version
+              run: echo "version=$(sed -nE 's/^go ([0-9]+\.[0-9]+).*/\1/p' go.mod)" >> "${GITHUB_OUTPUT}"
             - uses: actions/setup-go@v7
               with:
-                go-version: "1.26"
+                go-version: ${{ steps.go-version.outputs.version }}
+                check-latest: true
             - name: Install richgo
               run: |
                 #!/usr/bin/env bash

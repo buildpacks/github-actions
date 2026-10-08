@@ -1,4 +1,6 @@
-FROM golang:1.26 as build-stage
+# The major.minor of the `go` directive in `go.mod`, passed by the `action-*.yml` workflows.
+ARG GO_VERSION
+FROM golang:${GO_VERSION} as build-stage
 
 WORKDIR /src
 ENV GO111MODULE=on CGO_ENABLED=0

@@ -2,14 +2,22 @@ name: Action buildpackage-verify-metadata
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-buildpackage-verify-metadata.yml
     - buildpackage/verify-metadata/**
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
   push:
     branches:
     - main
     - test
     paths:
+    - .github/workflows/action-buildpackage-verify-metadata.yml
     - buildpackage/verify-metadata/**
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
   release:
     types:
@@ -58,6 +66,7 @@ jobs:
               docker build \
                 --file Dockerfile \
                 --build-arg "SOURCE=${SOURCE}" \
+                --build-arg "GO_VERSION=$(sed -nE 's/^go ([0-9]+\.[0-9]+).*/\1/p' go.mod)" \
                 --tag "${TARGET}:${VERSION}" \
                 .
             echo "::endgroup::"

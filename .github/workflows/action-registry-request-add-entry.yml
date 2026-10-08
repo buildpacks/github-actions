@@ -2,6 +2,10 @@ name: Action registry-request-add-entry
 "on":
   pull_request:
     paths:
+    - .github/workflows/action-registry-request-add-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-add-entry/**
@@ -10,6 +14,10 @@ name: Action registry-request-add-entry
     - main
     - test
     paths:
+    - .github/workflows/action-registry-request-add-entry.yml
+    - Dockerfile
+    - go.mod
+    - go.sum
     - internal/**
     - registry/internal/**
     - registry/request-add-entry/**
@@ -60,6 +68,7 @@ jobs:
               docker build \
                 --file Dockerfile \
                 --build-arg "SOURCE=${SOURCE}" \
+                --build-arg "GO_VERSION=$(sed -nE 's/^go ([0-9]+\.[0-9]+).*/\1/p' go.mod)" \
                 --tag "${TARGET}:${VERSION}" \
                 .
             echo "::endgroup::"
