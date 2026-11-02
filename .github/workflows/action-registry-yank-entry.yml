@@ -34,7 +34,7 @@ jobs:
     steps:
     - if:   ${{ env.PUSH == 'true' }}
       name: Docker login ghcr.io
-      uses: docker/login-action@v4.6.0
+      uses: docker/login-action@v4.7.0
       with:
         password: ${{ secrets.IMPLEMENTATION_GITHUB_TOKEN }}
         registry: ghcr.io
